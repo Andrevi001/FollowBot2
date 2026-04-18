@@ -1,6 +1,8 @@
 import picamera2
 import numpy as np
 import cv2
+from pySerialTransfer import pySerialTransfer as txfer
+import traceback
 
 width = 680
 height = 480
@@ -14,7 +16,13 @@ config = picam2.create_preview_configuration(
 picam2.configure(config)
 picam2.start()
 
+serial = txfer.SerialTransfer('/dev/serial0', baud=115200)
+ 
 try :
+    serial.open()
+    print("Seriale attiva")
+    send_size = 0
+
     while True:
 
         frame = picam2.capture_array()
@@ -24,10 +32,21 @@ try :
 
         if faces is not None:
             for face in faces:
+                
                 x, y, w, h = face[0:4].astype(int)
                 confidence = face[14]
+                
                 if confidence >= 0.7:
-                   cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0))
+                    cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0))
+                    
+                    
+                    
+                    send_size = serial.tx_obj(80, 0)
+                    serial.send(send_size)
+
+        send_size = serial.tx_obj(65, 0)
+        serial.send(send_size)
+        
         cv2.imshow("camera", frame)
 
         if cv2.waitKey(1) == 27:
@@ -38,4 +57,5 @@ except KeyboardInterrupt:
 
 finally:
     picam2.close()
+    serial.close()
     cv2.destroyAllWindows()
