@@ -1,27 +1,24 @@
 import picamera2
 import numpy as np
 import cv2
-from pySerialTransfer import pySerialTransfer as txfer
+import serial
 import traceback
 
 width = 680
 height = 480
 
 model = cv2.FaceDetectorYN.create("yunet.onnx", "", (width, height))
-
-picam2 = picamera2.Picamera2()
-config = picam2.create_preview_configuration(
-    main={"size": (width, height)}
-)
-picam2.configure(config)
-picam2.start()
-
-serial = txfer.SerialTransfer('/dev/serial0', baud=115200)
  
 try :
-    serial.open()
+    picam2 = picamera2.Picamera2()
+    config = picam2.create_preview_configuration(
+        main={"size": (width, height)}
+    )
+    picam2.configure(config)
+    picam2.start()
+
+    serial0 = serial.Serial('/dev/serial0', baudrate=115200)
     print("Seriale attiva")
-    send_size = 0
 
     while True:
 
@@ -29,6 +26,8 @@ try :
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         frame = cv2.flip(frame, 1)
         _, faces = model.detect(frame)
+
+        send_size = 0
 
         if faces is not None:
             for face in faces:
@@ -39,13 +38,21 @@ try :
                 if confidence >= 0.7:
                     cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0))
                     
+                    offset_x = (x + w/2) - (width/2)
+                    offset_y = (y + h/2) - (height/2)
                     
+                    pan = 0
+                    tilt = 0
+                    if abs(offset_x) > 5:
+                        pan = offset_x * (40/width) *0.4
+                    if abs(offset_y) > 5: 
+                        tilt = offset_y * (30/height)*0.4
                     
-                    send_size = serial.tx_obj(80, 0)
-                    serial.send(send_size)
-
-        send_size = serial.tx_obj(65, 0)
-        serial.send(send_size)
+                    serial0.write(bytes([80, int(pan) & 0xFF, int(tilt) & 0xFF]))
+                else:
+                    serial0.write(bytes([65, 0, 0]))
+        else:
+            serial0.write(bytes([65, 0, 0]))
         
         cv2.imshow("camera", frame)
 
@@ -57,5 +64,4 @@ except KeyboardInterrupt:
 
 finally:
     picam2.close()
-    serial.close()
     cv2.destroyAllWindows()
