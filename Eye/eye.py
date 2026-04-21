@@ -7,6 +7,9 @@ import traceback
 width = 680
 height = 480
 
+Kp = 5
+dead_zone = 0.02
+
 model = cv2.FaceDetectorYN.create("yunet.onnx", "", (width, height))
  
 try :
@@ -38,17 +41,19 @@ try :
                 if confidence >= 0.7:
                     cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0))
                     
-                    offset_x = (x + w/2) - (width/2)
-                    offset_y = (y + h/2) - (height/2)
+                    error_x = (x + w/2 - width/2) / (width/2)
+                    error_y = (y + h/2 - height/2) / (height/2)
                     
                     pan = 0
                     tilt = 0
-                    if abs(offset_x) > 5:
-                        pan = offset_x * (40/width) *0.4
-                    if abs(offset_y) > 5: 
-                        tilt = offset_y * (30/height)*0.4
+
+                if abs(error_x) > dead_zone:
+                    pan = int(error_x * Kp)
+
+                if abs(error_y) > dead_zone:
+                    tilt = int(error_y * Kp)
                     
-                    serial0.write(bytes([80, int(pan) & 0xFF, int(tilt) & 0xFF]))
+                    serial0.write(bytes([80, pan & 0xFF, tilt & 0xFF]))
                 else:
                     serial0.write(bytes([65, 0, 0]))
         else:
