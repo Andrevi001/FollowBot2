@@ -6,6 +6,12 @@ const int TILT = 25;
 Servo servoPan;
 Servo servoTilt;
 
+struct datiUpdate {
+    uint8_t header;
+    int8_t pan_next;
+    int8_t tilt_next;
+}dati;
+
 struct Pan_Tilt {
     private:
         int16_t pan = 85;
@@ -22,9 +28,6 @@ struct Pan_Tilt {
         void updateServos(int8_t pan_sum, int8_t tilt_sum) {
             pan += pan_sum;
             tilt += tilt_sum;
-
-            pan = constrain(pan, 0, 180);
-            tilt = constrain(tilt, 0, 180);
 
             servoPan.write(pan);
             servoTilt.write(tilt);

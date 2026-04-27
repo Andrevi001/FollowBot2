@@ -47,11 +47,11 @@ try :
                     pan = 0
                     tilt = 0
 
-                if abs(error_x) > dead_zone:
-                    pan = int(error_x * Kp)
+                    if abs(error_x) > dead_zone:
+                        pan = int(error_x * Kp)
 
-                if abs(error_y) > dead_zone:
-                    tilt = int(error_y * Kp)
+                    if abs(error_y) > dead_zone:
+                        tilt = int(error_y * Kp)
                     
                     serial0.write(bytes([80, pan & 0xFF, tilt & 0xFF]))
                 else:
