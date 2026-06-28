@@ -1,8 +1,0 @@
-[0:06:34.008690579] [3086]  INFO Camera camera_manager.cpp:340 libcamera v0.7.0+rpt20260205
-[0:06:34.019869033] [3090]  INFO RPI pisp.cpp:720 libpisp version v1.4.0 23-03-2026 (13:29:05)
-[0:06:34.029146950] [3090]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/pisp/ov5647.json
-[0:06:34.038186742] [3090]  INFO Camera camera_manager.cpp:223 Adding camera '/base/axi/pcie@1000120000/rp1/i2c@88000/ov5647@36' for pipeline handler rpi/pisp
-[0:06:34.038213185] [3090]  INFO RPI pisp.cpp:1181 Registered camera /base/axi/pcie@1000120000/rp1/i2c@88000/ov5647@36 to CFE device /dev/media0 and ISP device /dev/media2 using PiSP variant BCM2712_C0
-[0:06:34.041334015] [3086]  INFO Camera camera.cpp:1215 configuring streams: (0) 680x480-XBGR8888/sRGB (1) 640x480-GBRG_PISP_COMP1/RAW
-[0:06:34.041436421] [3090]  INFO RPI pisp.cpp:1485 Sensor: /base/axi/pcie@1000120000/rp1/i2c@88000/ov5647@36 - Selected sensor format: 640x480-SGBRG10_1X10/RAW - Selected CFE format: 640x480-PC1g/RAW
-Seriale attiva

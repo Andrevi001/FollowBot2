@@ -6,21 +6,15 @@ const int TILT = 25;
 Servo servoPan;
 Servo servoTilt;
 
-struct datiUpdate {
-    uint8_t header;
-    int8_t pan_next;
-    int8_t tilt_next;
-}dati;
-
 struct Pan_Tilt {
     private:
         int16_t pan = 85;
-        int16_t tilt = 40;
+        int16_t tilt = 30;
 
     public:
         void centerFov() {
             pan = 85;
-            tilt = 40;
+            tilt = 30;
             servoPan.write(pan);
             servoTilt.write(tilt);
         }

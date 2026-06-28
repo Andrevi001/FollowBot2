@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 //Setup motori
-// singolo standby per le due TB6612FNG
+// singolo standby
 #define STBY 5
 
 //singolo valore PWM

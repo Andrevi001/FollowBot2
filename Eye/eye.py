@@ -2,13 +2,15 @@ import picamera2
 import numpy as np
 import cv2
 import serial
-import traceback
+import math
 
 width = 680
 height = 480
 
-Kp = 5
+Kgain = 5
 dead_zone = 0.02
+
+Kdistanza = 0.108
 
 model = cv2.FaceDetectorYN.create("yunet.onnx", "", (width, height))
  
@@ -48,16 +50,21 @@ try :
                     tilt = 0
 
                     if abs(error_x) > dead_zone:
-                        pan = int(error_x * Kp)
+                        pan = int(error_x * Kgain)
 
                     if abs(error_y) > dead_zone:
-                        tilt = int(error_y * Kp)
+                        tilt = int(error_y * Kgain)
                     
-                    serial0.write(bytes([80, pan & 0xFF, tilt & 0xFF]))
+                    areaFrame = width * height
+                    areaBBox = w * h
+                    area = math.sqrt(areaBBox/areaFrame)
+                    distanza = min(int((Kdistanza/area)*100),255)
+
+                    serial0.write(bytes([80, pan & 0xFF, tilt & 0xFF, distanza & 0xFF]))
                 else:
-                    serial0.write(bytes([65, 0, 0]))
+                    serial0.write(bytes([65, 0, 0, 0]))
         else:
-            serial0.write(bytes([65, 0, 0]))
+            serial0.write(bytes([65, 0, 0, 0]))
         
         cv2.imshow("camera", frame)
 
