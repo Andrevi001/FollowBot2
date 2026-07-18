@@ -22,7 +22,7 @@ try :
     picam2.configure(config)
     picam2.start()
 
-    serial0 = serial.Serial('/dev/serial0', baudrate=115200)
+    serial0 = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
     print("Seriale attiva")
 
     while True:

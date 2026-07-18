@@ -6,6 +6,7 @@
 
 //singolo valore PWM
 #define PWM 21
+#define canale 6
 
 // canale A
 #define AIN1 4 //marrone
@@ -17,8 +18,8 @@
 
 void Forward() {
   //ruota destra
-  digitalWrite(AIN1, HIGH);
-  digitalWrite(AIN2, LOW);
+  digitalWrite(AIN1, LOW);
+  digitalWrite(AIN2, HIGH);
 
   //ruota sinistra
   digitalWrite(BIN1, LOW);
@@ -27,12 +28,12 @@ void Forward() {
 
 void Backward() {
   //ruota sinistra
-  digitalWrite(AIN1, LOW);
-  digitalWrite(AIN2, HIGH);
+  digitalWrite(AIN1, HIGH);
+  digitalWrite(AIN2, LOW);
 
   //ruota destra
-  digitalWrite(BIN2, LOW);
   digitalWrite(BIN1, HIGH);
+  digitalWrite(BIN2, LOW);
 }
 
 void DxRotation() {
@@ -41,8 +42,8 @@ void DxRotation() {
   digitalWrite(AIN2, HIGH);
 
   //ruota destra
-  digitalWrite(BIN2, HIGH);
-  digitalWrite(BIN1, LOW);
+  digitalWrite(BIN1, HIGH);
+  digitalWrite(BIN2, LOW);
 }
 
 void SxRotation() {
@@ -51,8 +52,8 @@ void SxRotation() {
   digitalWrite(AIN2, LOW);
 
   //ruota destra
-  digitalWrite(BIN2, LOW);
-  digitalWrite(BIN1, HIGH);
+  digitalWrite(BIN1, LOW);
+  digitalWrite(BIN2, HIGH);
 }
 
 void Stop() {
@@ -61,8 +62,8 @@ void Stop() {
   digitalWrite(AIN2, HIGH);
 
   //ruota sinistra
-  digitalWrite(BIN2, HIGH);
   digitalWrite(BIN1, HIGH);
+  digitalWrite(BIN2, HIGH);
 
   delay(100);
 

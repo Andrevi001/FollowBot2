@@ -29,8 +29,8 @@ void setup() {
     pinMode(BIN2,OUTPUT);
 
     //pin regolamento della velocità(PWM)
-    ledcSetup(6, 20000, 8);
-    ledcAttachPin(PWM, 6);
+    ledcSetup(canale, 20000, 8);
+    ledcAttachPin(PWM, canale);
 
     //STBY sempre HIGH (non va mai in standby)
     digitalWrite(STBY, HIGH);
@@ -39,11 +39,14 @@ void setup() {
 }
 
 void loop() {
-    
     leggiUpdate();
     muoviCorpo();
 }
 
+/** Funzione per la lettura dei dati inviati dal centro di elaborazione tramite la seriale 2. 
+ * I dati vengono letti in blocchi di 4 byte e salvati nella struttura datiUpdate. 
+ * Se l'header è corretto (80), viene aggiornato il pan e tilt della telecamera. 
+ */
 void leggiUpdate() {
     while (Serial2.available() >= 4) {
         dati.header = Serial2.read();
@@ -57,8 +60,11 @@ void leggiUpdate() {
     }
 }
 
+/** Funzione per l'allineamento del corpo con la camera. 
+ * Se viene superato il limSx il corpo gira a sinistra, se invece viene superato il limite destro il corpo gira a destra.
+ */
 void allineaCameraCorpo(uint8_t limSx, uint8_t limDx) {
-    ledcWrite(6, 50);
+    ledcWrite(canale, 50);
     if (pt.getPan() > limSx && dati.header == 80) {
         SxRotation();
     } else if (pt.getPan() < limDx && dati.header == 80) {
@@ -68,11 +74,16 @@ void allineaCameraCorpo(uint8_t limSx, uint8_t limDx) {
     }
 }
 
+/** Funzione che accorpa l'allineamento corpo/camera e la decisione di movimento in avvicinamento/allontanamento. */
 void muoviCorpo() {
     allineaCameraCorpo(150,20);
     FwBw();
 }
 
+/** Funzione per decidere il movimento in avvicinamento o allontanamento dal bersaglio.
+ * Il movimento avviene lungo l'asse perpendicolare al bersaglio.
+ * Si avvicina se la distanza è oltre i 160cm, si allontana se è sotto i 100cm e oltre i 20cm.
+ */
 void FwBw() {
     while(dati.distanza > 160 || (dati.distanza < 100 && dati.distanza > 20)) {
         leggiUpdate();
@@ -80,7 +91,7 @@ void FwBw() {
             allineaCameraCorpo(88, 82);
         }
         
-        ledcWrite(6, 100);
+        ledcWrite(canale, 100);
         if (dati.distanza > 160) {
             Forward();
         } else if (dati.distanza < 100 && dati.distanza > 20) {
