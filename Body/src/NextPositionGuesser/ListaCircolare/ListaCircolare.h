@@ -1,3 +1,6 @@
+#ifndef LISTA_CIRCOLARE_H
+#define LISTA_CIRCOLARE_H
+
 #include <Arduino.h>
 
 constexpr uint8_t LEN = 15;
@@ -8,15 +11,8 @@ struct ListaCircolare {
     uint8_t next = 0;
 
     public:
-    void add(int16_t entry) {
-        entries[next] = entry;
-        next++;
-        if (next == LEN) {
-            next = 0;
-        }
-    }
-
-    const int16_t* getEntries() const {
-        return entries;
-    }
+    void add(int16_t entry);
+    const int16_t* getEntries() const;
 };
+
+#endif // LISTA_CIRCOLARE_H

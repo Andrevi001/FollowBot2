@@ -1,7 +1,10 @@
 #include <Arduino.h>
-#include <utils.h>
-#include "motori/motori.cpp"
-#include <servo.h>
+#include "utils.h"
+#include "motori/motori.h"
+#include "servo/servo.h"
+
+datiUpdate dati;
+NextPositionGuesser guesser;
 
 /** Funzione per la lettura dei dati inviati dal centro di elaborazione tramite la seriale 2. 
  * I dati vengono letti in blocchi di 4 byte e salvati nella struttura datiUpdate. 
@@ -44,12 +47,6 @@ void allineaCameraCorpo(uint8_t limSx, uint8_t limDx) {
     }
 }
 
-/** Funzione che accorpa l'allineamento corpo/camera e la decisione di movimento in avvicinamento/allontanamento. */
-void muoviCorpo() {
-    allineaCameraCorpo(150,20);
-    FwBw();
-}
-
 /** Funzione per decidere il movimento in avvicinamento o allontanamento dal bersaglio.
  * Il movimento avviene lungo l'asse perpendicolare al bersaglio.
  * Si avvicina se la distanza è oltre i 160cm, si allontana se è sotto i 100cm e oltre i 20cm.
@@ -75,4 +72,10 @@ void FwBw() {
             return;
         }
     }
+}
+
+/** Funzione che accorpa l'allineamento corpo/camera e la decisione di movimento in avvicinamento/allontanamento. */
+void muoviCorpo() {
+    allineaCameraCorpo(150,20);
+    FwBw();
 }

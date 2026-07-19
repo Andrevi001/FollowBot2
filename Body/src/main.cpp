@@ -1,5 +1,7 @@
 #include <Arduino.h>
-#include <utils.cpp>
+#include "utils/utils.h"
+#include "servo/servo.h"
+#include "motori/motori.h"
 
 void setup() {
     Serial.begin(115200);
