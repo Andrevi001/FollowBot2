@@ -1,17 +1,17 @@
 #include <Arduino.h>
 
-constexpr uint8_t len = 10;
+constexpr uint8_t LEN = 15;
 
 struct ListaCircolare {
     private:
-    int16_t entries[len] = {0};
+    int16_t entries[LEN] = {0};
     uint8_t next = 0;
 
     public:
     void add(int16_t entry) {
         entries[next] = entry;
         next++;
-        if (next == len) {
+        if (next == LEN) {
             next = 0;
         }
     }
