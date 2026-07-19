@@ -1,20 +1,5 @@
 #include <Arduino.h>
-
-//Setup motori
-// singolo standby
-#define STBY 5
-
-//singolo valore PWM
-#define PWM 21
-#define canale 6
-
-// canale A
-#define AIN1 4 //marrone
-#define AIN2 15 //viola
-
-//canale B
-#define BIN1 18 //grigio
-#define BIN2 19 //bianco
+#include "motori.h"
 
 void Forward() {
   //ruota destra

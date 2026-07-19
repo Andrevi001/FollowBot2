@@ -1,7 +1,7 @@
 #include <ESP32Servo.h>
 
-const int PAN = 26;
-const int TILT = 25;
+const u_int8_t PAN = 26;
+const u_int8_t TILT = 25;
 
 Servo servoPan;
 Servo servoTilt;
