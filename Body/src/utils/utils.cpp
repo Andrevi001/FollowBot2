@@ -2,10 +2,11 @@
 #include "utils.h"
 #include "motori/motori.h"
 #include "servo/servo.h"
+#include "StatoMarcia/StatoMarcia.h"
 
 datiUpdate dati;
 NextPositionGuesser guesser;
-bool fwBw = false;
+StatoMarcia& statoFwBw = StatoMarcia::getInstance();
 
 /** Funzione per la lettura dei dati inviati dal centro di elaborazione tramite la seriale 2. 
  * I dati vengono letti in blocchi di 4 byte e salvati nella struttura datiUpdate. 
@@ -39,10 +40,10 @@ void allineaCameraCorpo(uint8_t limSx, uint8_t limDx) {
         SxRotation();
     } else if (pt.getPan() < limDx) {
         DxRotation();
-    } else if (!fwBw) {
+    } else if (!statoFwBw.isInMovimento()) {
         Stop();
     } else {
-        fwBw = false;
+        statoFwBw.resettaInMovimento();
     }
 }
 
@@ -67,11 +68,11 @@ void FwBw() {
             Backward();
         } else {
             Stop();
-            fwBw = false;
+            statoFwBw.resettaInMovimento();
             return;
         }
 
-        fwBw = true;
+        statoFwBw.impostaInMovimento();
     }
 }
 
