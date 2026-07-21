@@ -5,11 +5,10 @@
 
 datiUpdate dati;
 NextPositionGuesser guesser;
+bool fwBw = false;
 
 /** Funzione per la lettura dei dati inviati dal centro di elaborazione tramite la seriale 2. 
  * I dati vengono letti in blocchi di 4 byte e salvati nella struttura datiUpdate. 
- * Se il header è corretto (80), viene aggiornato il pan e tilt della telecamera.
- * Se il header non è corretto, effettua una stima di dove potrebbe essere la prossima posizione pan/tilt.  
  */
 void leggiUpdate() {
     while (Serial2.available() >= 4) {
@@ -29,8 +28,6 @@ void leggiUpdate() {
             dati.tilt_next = tiltGuess;
             dati.distanza =(uint8_t)distanceGuess;
         }
-
-        pt.updateServos(dati.pan_next, dati.tilt_next);
     }
 }
 
@@ -38,12 +35,14 @@ void leggiUpdate() {
  * Se viene superato il limSx il corpo gira a sinistra, se invece viene superato il limite destro il corpo gira a destra.
  */
 void allineaCameraCorpo(uint8_t limSx, uint8_t limDx) {
-    if (pt.getPan() > limSx && dati.header == 80) {
+    if (pt.getPan() > limSx) {
         SxRotation();
-    } else if (pt.getPan() < limDx && dati.header == 80) {
+    } else if (pt.getPan() < limDx) {
         DxRotation();
-    } else {
+    } else if (!fwBw) {
         Stop();
+    } else {
+        fwBw = false;
     }
 }
 
@@ -52,7 +51,6 @@ void allineaCameraCorpo(uint8_t limSx, uint8_t limDx) {
  * Si avvicina se la distanza è oltre i 160cm, si allontana se è sotto i 100cm e oltre i 20cm.
  */
 void FwBw() {
-
     bool avvicinamento = dati.distanza > 160;
     bool allontanamento = dati.distanza < 100 && dati.distanza > 20;
 
@@ -69,13 +67,18 @@ void FwBw() {
             Backward();
         } else {
             Stop();
+            fwBw = false;
             return;
         }
+
+        fwBw = true;
     }
 }
 
-/** Funzione che accorpa l'allineamento corpo/camera e la decisione di movimento in avvicinamento/allontanamento. */
+/** Funzione che accorpa il movimento pan/tilt,
+ * l'allineamento corpo/camera e la decisione di movimento in avvicinamento/allontanamento. */
 void muoviCorpo() {
+    pt.updateServos(dati.pan_next, dati.tilt_next);
     allineaCameraCorpo(150,20);
     FwBw();
 }
