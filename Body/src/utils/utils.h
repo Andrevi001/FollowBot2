@@ -13,6 +13,11 @@ struct datiUpdate {
 
 extern datiUpdate dati;
 extern NextPositionGuesser guesser;
+extern bool avvicinamento;
+extern bool allontanamento;
+const uint8_t MaxDistanceCm = 160;
+const uint8_t MinDistanceCm = 100;
+
 
 void leggiUpdate();
 void allineaCameraCorpo(uint8_t limSx, uint8_t limDx);

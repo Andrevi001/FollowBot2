@@ -1,20 +1,18 @@
 #include "StatoMarcia.h"
 
-StatoMarcia::StatoMarcia() : inMovimento(false) {}
-
 StatoMarcia& StatoMarcia::getInstance() {
     static StatoMarcia instance; 
     return instance;
 }
 
-bool StatoMarcia::isInMovimento() const {
-    return inMovimento;
+void StatoMarcia::idle() {
+    statoAttuale = IDLE;
 }
 
-void StatoMarcia::impostaInMovimento() {
-    inMovimento = true;
+void StatoMarcia::torre() {
+    statoAttuale = TORRE;
 }
 
-void StatoMarcia::resettaInMovimento() {
-    inMovimento = false;
+void StatoMarcia::movimento() {
+    statoAttuale = MOVIMENTO;
 }

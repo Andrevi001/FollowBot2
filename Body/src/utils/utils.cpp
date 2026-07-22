@@ -6,7 +6,7 @@
 
 datiUpdate dati;
 NextPositionGuesser guesser;
-StatoMarcia& statoFwBw = StatoMarcia::getInstance();
+StatoMarcia& stato = StatoMarcia::getInstance();
 
 /** Funzione per la lettura dei dati inviati dal centro di elaborazione tramite la seriale 2. 
  * I dati vengono letti in blocchi di 4 byte e salvati nella struttura datiUpdate. 
@@ -40,10 +40,8 @@ void allineaCameraCorpo(uint8_t limSx, uint8_t limDx) {
         SxRotation();
     } else if (pt.getPan() < limDx) {
         DxRotation();
-    } else if (!statoFwBw.isInMovimento()) {
-        Stop();
     } else {
-        statoFwBw.resettaInMovimento();
+        Stop();
     }
 }
 
@@ -52,34 +50,32 @@ void allineaCameraCorpo(uint8_t limSx, uint8_t limDx) {
  * Si avvicina se la distanza è oltre i 160cm, si allontana se è sotto i 100cm e oltre i 20cm.
  */
 void FwBw() {
-    bool avvicinamento = dati.distanza > 160;
-    bool allontanamento = dati.distanza < 100 && dati.distanza > 20;
-
-    if (avvicinamento || allontanamento) {
-
-        if (pt.getPan() > 88 || pt.getPan() < 82) {
-            allineaCameraCorpo(88, 82);
-            return;
-        }
+    if (pt.getPan() > 88 || pt.getPan() < 82) {
+        allineaCameraCorpo(88, 82);
+        return;
+    }
         
-        if (avvicinamento) {
-            Forward();
-        } else if (allontanamento) {
-            Backward();
-        } else {
-            Stop();
-            statoFwBw.resettaInMovimento();
-            return;
-        }
-
-        statoFwBw.impostaInMovimento();
+    if (avvicinamento) {
+        Forward();
+    } else if (allontanamento) {
+        Backward();
     }
 }
 
 /** Funzione che accorpa il movimento pan/tilt,
  * l'allineamento corpo/camera e la decisione di movimento in avvicinamento/allontanamento. */
 void muoviCorpo() {
+
     pt.updateServos(dati.pan_next, dati.tilt_next);
-    allineaCameraCorpo(150,20);
-    FwBw();
+    if (stato.stato() != MOVIMENTO) {
+        allineaCameraCorpo(150,20);
+    }
+
+    if (avvicinamento || allontanamento) {
+        FwBw();
+        stato.movimento();
+    } else {
+        Stop();
+        stato.torre();
+    }
 }

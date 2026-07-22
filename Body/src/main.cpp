@@ -31,5 +31,8 @@ void setup() {
 
 void loop() {
     leggiUpdate();
+
+    avvicinamento = dati.distanza > MaxDistanceCm;
+    allontanamento = dati.distanza < MinDistanceCm && dati.distanza > 20;
     muoviCorpo();
 }
