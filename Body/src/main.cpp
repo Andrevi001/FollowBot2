@@ -1,15 +1,15 @@
 #include <Arduino.h>
 #include "utils/utils.h"
-#include "servo/servo.h"
+#include "Pan_Tilt/Pan_Tilt.h"
 #include "motori/motori.h"
 
 void setup() {
+    //Comunicazione seriale
     Serial.begin(115200);
     Serial2.begin(115200, SERIAL_8N1, 16, 17);
 
-    servoPan.attach(PAN);
-    servoTilt.attach(TILT);
-    pt.centerFov();
+    //inizializzo Pan_Tilt
+    Pan_Tilt::getInstance().begin();
 
     //pin logica di controllo per le ruote
     pinMode(STBY, OUTPUT);
@@ -26,6 +26,7 @@ void setup() {
     //STBY sempre HIGH (non va mai in standby)
     digitalWrite(STBY, HIGH);
 
+    //messaggio di avvio.
     Serial.println("Hello!");
 }
 

@@ -4,6 +4,10 @@
 #include <Arduino.h>
 #include "NextPositionGuesser/NextPositionGuesser.h"
 
+/**
+ * Insieme di funzioni e variabili globali.
+ */
+
 struct datiUpdate {
     uint8_t header;
     int8_t pan_next;
@@ -15,6 +19,7 @@ extern datiUpdate dati;
 extern NextPositionGuesser guesser;
 extern bool avvicinamento;
 extern bool allontanamento;
+extern bool nuovoDato;
 const uint8_t MaxDistanceCm = 160;
 const uint8_t MinDistanceCm = 100;
 

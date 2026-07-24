@@ -3,11 +3,14 @@
 
 #include "StatoRobot.h"
 
+/**
+ * Classe singleton che serve a gestire lo stato di FollowBot2. Utilizza Enum StatoRobot.
+ */
 class StatoMarcia {
 private:
-    StatoRobot statoAttuale = IDLE;
+    StatoRobot statoAttuale = TORRE;
 
-    StatoMarcia();
+    StatoMarcia() = default;
 
     StatoMarcia(const StatoMarcia&) = delete;
     void operator=(const StatoMarcia&) = delete;
@@ -16,7 +19,7 @@ public:
 
     static StatoMarcia& getInstance();
 
-    StatoRobot stato() const;
+    StatoRobot stato();
     void idle();
     void movimento();
     void torre();

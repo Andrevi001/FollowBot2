@@ -4,6 +4,9 @@
 #include <Arduino.h>
 #include "ListaCircolare/ListaCircolare.h"
 
+/**
+ * Classe che indovina la prossima posizione del bersaglio basandosi su posizioni precedenti.
+ */
 struct NextPositionGuesser {
     private:
     ListaCircolare panValues;
@@ -17,4 +20,4 @@ struct NextPositionGuesser {
     void guess(int16_t& predictedPan, int16_t& predictedTilt, int16_t& predictedDistance);
 };
 
-#endif // NEXT_POSITION_GUESSER_H
+#endif

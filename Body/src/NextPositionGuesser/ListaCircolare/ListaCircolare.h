@@ -5,6 +5,9 @@
 
 constexpr uint8_t LEN = 15;
 
+/**
+ * classe che implementa una lista circolare di interi di lunghezza LEN.
+ */
 struct ListaCircolare {
     private:
     int16_t entries[LEN] = {0};
