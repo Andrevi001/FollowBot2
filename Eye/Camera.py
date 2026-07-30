@@ -3,6 +3,7 @@ import cv2
 import config
 
 class Camera():
+
     def __init__(self):
         self.picam2 = picamera2.Picamera2()
 
