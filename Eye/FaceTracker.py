@@ -8,12 +8,12 @@ class FaceTracker():
 
     def processFaces(self, faces):
         for face in faces:
-            x, y, w, h = face[0:4].astype(int)
-            confidence = face[14]
+            confidence = face.categories[0].score if face.categories else 0.0
                         
-            if confidence >= 0.7:                
-                error_x = (x + w/2 - config.width/2) / (config.width/2)
-                error_y = (y + h/2 - config.height/2) / (config.height/2)
+            if confidence >= 0.2:
+                bbox = face.bounding_box
+                error_x = (bbox.origin_x + bbox.width/2 - config.width/2) / (config.width/2)
+                error_y = (bbox.origin_y + bbox.height/2 - config.height/2) / (config.height/2)
                             
                 pan = 0
                 tilt = 0
@@ -24,9 +24,9 @@ class FaceTracker():
                 if abs(error_y) > config.dead_zone:
                     tilt = int(error_y * config.Kgain)
 
-                distanza = self._calcolaDistanza(w,h)
+                distanza = self._calcolaDistanza(bbox.width, bbox.height)
 
-                return 80, pan, tilt, distanza, (x, y, w, h)
+                return 80, pan, tilt, distanza, (bbox.origin_x, bbox.origin_y, bbox.width, bbox.height)
         
         return 65, 0, 0, 0, (0, 0, 0, 0)
 

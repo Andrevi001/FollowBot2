@@ -1,15 +1,23 @@
 import cv2
 import serial
 import time
-import config
+import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 from Camera import Camera
 from FaceTracker import FaceTracker
 from PerformanceTracker import PerformanceTracker
 
-model = cv2.FaceDetectorYN.create("Modelli/yunet.onnx", "", (config.width, config.height))
+base_options = python.BaseOptions(model_asset_path='Modelli/detector_full_range.tflite')
+options = vision.FaceDetectorOptions(
+    base_options=base_options,
+    min_detection_confidence=0.2
+)
+detector = vision.FaceDetector.create_from_options(options)
+
 cam = Camera() 
 face_tracker = FaceTracker()
-performance_tracker = PerformanceTracker("ModelPerformance/YuNet_Performance.csv")
+performance_tracker = PerformanceTracker("ModelPerformance/MediaPipe_Performance.csv")
 
 try :
     cam.begin()
@@ -20,14 +28,15 @@ try :
         tot_latency_start = time.perf_counter()
 
         frame = cam.captureFrame()
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
 
         inf_latency_start = time.perf_counter()
-        _, faces = model.detect(frame)
+        result = detector.detect(mp_image)
         inf_latency_finish = time.perf_counter()
         performance_tracker.thisInferenceLatecy((inf_latency_finish-inf_latency_start)*1000)
 
         send_size = 0
-
+        faces = result.detections
         if faces is not None:
 
             header, pan, tilt, distance, frame_data = face_tracker.processFaces(faces)
