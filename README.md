@@ -46,9 +46,10 @@ Le funzionalità proposte vengono sviluppate su più versioni.
 
 ### Versione 1.0:
 
-In questa release il robot segue un volto rilevato all'interno del frame. Come in FollowBot questa versione ha un comportamento imprevedibile quando ci sono più volti. 
+In questa release il robot segue un volto rilevato all'interno del frame. 
+Come in FollowBot questa versione ha un comportamento imprevedibile quando ci sono più volti. 
 
-A differenza del predecessore (che usava YuNet) questa versione impiega **MediaPipe/BlazeFace** per il rilevamento volti. Con una leggera taratura della soglia di *confidence*, questo modello fornisce prestazioni superiori con un consumo di RAM contenuto.
+Nel rover originale è stato impiegato YuNet per la rilevazione dei volti. In questa versione ho pensato di provare un modello alternativo: MediaPipe/BlazeFace. Confrontando i due modelli ho visto che su carta, dopo una taratura del voto di *confidence*, si hanno performance migliori. 
 
 #### Confronto Prestazioni Modelli (YuNet vs BlazeFace)
 
@@ -59,6 +60,12 @@ A differenza del predecessore (che usava YuNet) questa versione impiega **MediaP
 | Inference Latency | FPS |
 | :---: | :---: |
 | ![Inference_Latency_ms](Eye/ModelPerformance/Grafici/Inference.png) | ![fps](Eye/ModelPerformance/Grafici/fps.png) |
+
+#### Considerazioni pratiche ed empiriche:
+Nonostante le metriche favorevoli nei benchmark, i test sul campo evidenziano alcune limitazioni rispetto a YuNet:
+- L'abbassamento della soglia di *confidence* ha introdotto falsi positivi (ombre o elementi dello sfondo scambiati per volti).
+- A medie distanze (2-3 metri) il modello mostra un'accuratezza inferiore rispetto al rilevamento da vicino (< 1 metro).
+- La costante per la stima della distanza era tarata sul bounding box di YuNet, risultando meno precisa con le proporzioni restituite da BlazeFace.
 
 ---
 

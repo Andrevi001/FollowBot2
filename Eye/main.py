@@ -1,19 +1,11 @@
 import cv2
 import serial
-import mediapipe as mp
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
 from Camera import Camera
 from FaceTracker import FaceTracker
+from FaceDetector import FaceDetector
 
-base_options = python.BaseOptions(model_asset_path='Modelli/detector_full_range.tflite')
-options = vision.FaceDetectorOptions(
-    base_options=base_options,
-    min_detection_confidence=0.2
-)
-detector = vision.FaceDetector.create_from_options(options)
-
-cam = Camera() 
+cam = Camera()
+face_detector = FaceDetector() 
 face_tracker = FaceTracker()
 
 try :
@@ -23,24 +15,23 @@ try :
 
     while True:
         frame = cam.captureFrame()
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
-
-        result = detector.detect(mp_image)
-
-        send_size = 0
-        faces = result.detections
+        
+        faces = face_detector.detect(frame)
         if faces is not None:
 
             header, pan, tilt, distance, frame_data = face_tracker.processFaces(faces)
             x, y, w, h = frame_data       
 
+            if header == 80:
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0)) 
+
             serial0.write(bytes([header, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
         else:
             serial0.write(bytes([65, 0, 0, 0]))
         
-        if header == 80:
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0)) 
-                cv2.imshow("camera", frame)
+        
+        
+        cv2.imshow("camera", frame)
 
         if cv2.waitKey(1) == 27:
             break

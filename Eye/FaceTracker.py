@@ -7,13 +7,16 @@ class FaceTracker():
         self.height = config.height
 
     def processFaces(self, faces):
+
+        if faces is None:
+            return 65, 0, 0, 0, (0, 0, 0, 0)
         for face in faces:
-            confidence = face.categories[0].score if face.categories else 0.0
+            confidence = face[14]
                         
-            if confidence >= 0.2:
-                bbox = face.bounding_box
-                error_x = (bbox.origin_x + bbox.width/2 - config.width/2) / (config.width/2)
-                error_y = (bbox.origin_y + bbox.height/2 - config.height/2) / (config.height/2)
+            if confidence >= 0.5:
+                x, y, w, h = face[0:4].astype(int)
+                error_x = (x + w/2 - config.width/2) / (config.width/2)
+                error_y = (y + h/2 - config.height/2) / (config.height/2)
                             
                 pan = 0
                 tilt = 0
@@ -24,14 +27,16 @@ class FaceTracker():
                 if abs(error_y) > config.dead_zone:
                     tilt = int(error_y * config.Kgain)
 
-                distanza = self._calcolaDistanza(bbox.width, bbox.height)
+                distanza = self._calcolaDistanza(w, h)
 
-                return 80, pan, tilt, distanza, (bbox.origin_x, bbox.origin_y, bbox.width, bbox.height)
-        
+                return 80, pan, tilt, distanza, (x, y, w, h)
+            
         return 65, 0, 0, 0, (0, 0, 0, 0)
 
     def _calcolaDistanza(self, w: int, h: int) -> int:
         areaFrame = config.width * config.height
         areaBBox = w * h
+        if areaBBox <= 0:
+            return 0
         area = math.sqrt(areaBBox/areaFrame)
         return min(int((config.Kdistanza/area)*100),255)
