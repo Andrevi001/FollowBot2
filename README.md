@@ -54,11 +54,11 @@ A differenza del predecessore (che usava YuNet) questa versione impiega **MediaP
 
 | CPU Usage | RAM Usage |
 | :---: | :---: |
-| ![CPU_Percent](ModelPerformance/Grafici/CPU.png) | ![RAM_MB](ModelPerformance/Grafici/RAM.png) |
+| ![CPU_Percent](Eye/ModelPerformance/Grafici/CPU.png) | ![RAM_MB](Eye/ModelPerformance/Grafici/RAM.png) |
 
 | Inference Latency | FPS |
 | :---: | :---: |
-| ![Inference_Latency_ms](ModelPerformance/Grafici/Inference.png) | ![fps](ModelPerformance/Grafici/fps.png) |
+| ![Inference_Latency_ms](Eye/ModelPerformance/Grafici/Inference.png) | ![fps](Eye/ModelPerformance/Grafici/fps.png) |
 
 ---
 
