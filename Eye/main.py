@@ -1,12 +1,12 @@
 import cv2
 import serial
 from Camera import Camera
-from FaceTracker import FaceTracker
-from FaceDetector import FaceDetector
+from TargetTracker import TargetTracker
+from TargetDetector import TargetDetector
 
 cam = Camera()
-face_detector = FaceDetector() 
-face_tracker = FaceTracker()
+target_detector = TargetDetector() 
+target_tracker = TargetTracker()
 
 try :
     cam.begin()
@@ -16,16 +16,18 @@ try :
     while True:
         frame = cam.captureFrame()
         
-        faces = face_detector.detect(frame)
-        if faces is not None:
+        targets = target_detector.detect(frame)
+        if targets is not None:
 
-            header, pan, tilt, distance, frame_data = face_tracker.processFaces(faces)
-            x, y, w, h = frame_data       
+            targets = target_tracker.processTargets(targets.pose_landmarks)
+            for target in targets:
+                header, pan, tilt, distance, center = target
 
-            if header == 80:
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0)) 
+                if header == 80:
+                    x, y = center
+                    cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)
 
-            serial0.write(bytes([header, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
+                    serial0.write(bytes([header, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
         else:
             serial0.write(bytes([65, 0, 0, 0]))
         
