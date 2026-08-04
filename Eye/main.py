@@ -3,7 +3,6 @@ import serial
 from Camera import Camera
 from TargetTracker import TargetTracker
 from TargetDetector import TargetDetector
-import config
 
 cam = Camera()
 target_detector = TargetDetector() 
@@ -23,8 +22,8 @@ try :
             targets = target_tracker.processTargets(targets.pose_landmarks)
             for target in targets:
                 header, pan, tilt, distance, center = target
-                if header == 80:
 
+                if header == 80:
                     x, y = center
                     cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)
 
