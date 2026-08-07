@@ -62,14 +62,17 @@ void allineaCameraCorpo(uint8_t limSx, uint8_t limDx) {
  * Si avvicina se la distanza è oltre i 160cm, si allontana se è sotto i 100cm e oltre i 20cm.
  */
 void FwBw() {
-    if (pt.getPan() > 88 || pt.getPan() < 82) {
-        allineaCameraCorpo(90, 80);
-        return;
-    }
-        
     if (avvicinamento) {
+        if (pt.getPan() > 90 || pt.getPan() < 80) {
+            allineaCameraCorpo(90, 80);
+            return;
+        }
         Forward();
     } else if (allontanamento) {
+        if (pt.getPan() > 100 || pt.getPan() < 70) {
+            allineaCameraCorpo(100, 70);
+            return;
+        }
         Backward();
     }
 }
