@@ -21,7 +21,7 @@ void setup() {
     //pin regolamento della velocità(PWM)
     ledcSetup(canale, 20000, 8);
     ledcAttachPin(PWM, canale);
-    ledcWrite(canale, 40);
+    ledcWrite(canale, 50);
 
     //STBY sempre HIGH (non va mai in standby)
     digitalWrite(STBY, HIGH);

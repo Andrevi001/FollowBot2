@@ -29,7 +29,7 @@ void Pan_Tilt::updateServos(int8_t pan_sum, int8_t tilt_sum) {
     tilt += tilt_sum;
 
     pan = constrain(pan, 0, 180);
-    tilt = constrain(tilt, 0, 180);
+    tilt = constrain(tilt, 0, 75);
 
     servoPan.write(pan);
     servoTilt.write(tilt);
