@@ -31,8 +31,10 @@ class DistanceLogger:
         return  self.__k_spalla_gomito
 
     def update_K(self):
-        self.__k_spalle = self._meanDistance(self.__spalle_path) / math.sqrt((config.width**2) + (config.height**2))
-        self.__k_spalla_gomito = self._meanDistance(self.__spalla_gomito_path) /math.sqrt((config.width**2) + (config.height**2))
+        diagonale = math.sqrt((config.width**2) + (config.height**2))
+
+        self.__k_spalle = self._meanDistance(self.__spalle_path) / diagonale
+        self.__k_spalla_gomito = self._meanDistance(self.__spalla_gomito_path) / diagonale
 
     def _meanDistance(self, filePath):
         file_exists = os.path.exists(filePath)

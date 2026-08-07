@@ -16,18 +16,25 @@ try :
     while True:
         frame = cam.captureFrame()
         
-        targets = target_detector.detect(frame)
-        if targets is not None:
+        detection = target_detector.detect(frame)
+        if detection.pose_landmarks:
 
-            targets = target_tracker.processTargets(targets.pose_landmarks)
+            targets = target_tracker.processTargets(detection.pose_landmarks)
             for target in targets:
                 header, pan, tilt, distance, center = target
 
-                if header == 80:
-                    x, y = center
-                    cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)
+                if targets:
+                    for target in targets:
+                        header, pan, tilt, distance, center = target
 
-                    serial0.write(bytes([header, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
+                        if header == 80:
+                            x, y = center
+                            cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)
+
+                            serial0.write(bytes([header, pan & 0xFF, tilt & 0xFF, int(distance) & 0xFF]))
+                else:
+                    serial0.write(bytes([65, 0, 0, 0]))
+
         else:
             serial0.write(bytes([65, 0, 0, 0]))
         
