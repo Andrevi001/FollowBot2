@@ -3,13 +3,10 @@ import serial
 from Camera import Camera
 from TargetTracker import TargetTracker
 from TargetDetector import TargetDetector
-import time
-from PerformanceTracker import PerformanceTracker
 
 cam = Camera()
-target_detector = TargetDetector() 
+target_detector = TargetDetector("Modelli/yolov8n-pose.onnx") 
 target_tracker = TargetTracker()
-performance_tracker = PerformanceTracker("ModelPerformance/Pose_tracking_stats/MediaPipePose.csv")
 
 try :
     cam.begin()
@@ -17,15 +14,13 @@ try :
     print("Attivo")
 
     while True:
-        tot_latency_start = time.perf_counter() * 1000
         frame = cam.captureFrame()
 
-        inference_latency_start = time.perf_counter() * 1000
-        detection = target_detector.detect(frame)
-        inference_latency_end = time.perf_counter() * 1000
-        if detection.pose_landmarks:
+        detections = target_detector.detect(frame)
 
-            targets = target_tracker.processTargets(detection.pose_landmarks)
+        if detections:
+
+            targets = target_tracker.processTargets(detections)
             if targets:
                 for target in targets:
                     header, pan, tilt, distance, center = target
@@ -47,9 +42,6 @@ try :
 
         if cv2.waitKey(1) == 27:
             break
-        
-        tot_latency_end = time.perf_counter() * 1000
-        performance_tracker.addPerformanceStats(tot_latency_end - tot_latency_start, inference_latency_end - inference_latency_start)
 
 
 except KeyboardInterrupt:
@@ -60,4 +52,3 @@ finally:
     if serial0 is not None and serial0.is_open:
         serial0.close()
     cv2.destroyAllWindows()
-    performance_tracker.writeToFile()

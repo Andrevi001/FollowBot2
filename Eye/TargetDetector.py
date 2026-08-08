@@ -1,19 +1,32 @@
-import mediapipe as mp
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
+from ultralytics import YOLO
 
 class TargetDetector: 
-    def __init__(self):
-        base_options = python.BaseOptions(model_asset_path='Modelli/pose_landmarker_lite.task')
 
-        options = vision.PoseLandmarkerOptions(
-            base_options=base_options,
-            running_mode=vision.RunningMode.IMAGE
-        )
+    class Punto:
+        def __init__(self, x, y, visibility):
+            self.x = x
+            self.y = y
+            self.visibility = visibility
 
-        self.detector = vision.PoseLandmarker.create_from_options(options)
+    def __init__(self, filePath):
+        self.detector = YOLO(filePath)
 
     def detect(self, frame):
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
-        return self.detector.detect(mp_image)
+        targets = []
 
+        raw_targets = self.detector(frame, imgsz=(256, 320), verbose=False)
+
+        if raw_targets[0].keypoints is None or len(raw_targets[0].keypoints) == 0:
+            return targets
+        
+        for landmarks, scores in zip(raw_targets[0].keypoints.xyn, raw_targets[0].keypoints.conf):
+            landmarks = landmarks.numpy()
+            scores = scores.numpy()
+            pose = []
+            for kps, conf in zip(landmarks, scores):
+                pose.append(self.Punto(kps[0], kps[1], conf))
+
+            targets.append(pose)
+            
+
+        return targets
