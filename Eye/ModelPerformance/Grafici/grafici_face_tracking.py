@@ -1,8 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-YuNet = pd.read_csv('../YuNet_Performance.csv')
-MediaPipe = pd.read_csv('../MediaPipe_Performance.csv')
+YuNet = pd.read_csv('../Face_tracking_stats/YuNet_Performance.csv')
+MediaPipe = pd.read_csv('../Face_tracking_stats/MediaPipe_Performance.csv')
 
 YuNet_pr = []
 MediaPipe_pr = []
