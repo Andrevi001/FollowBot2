@@ -47,9 +47,9 @@ class TargetTracker():
                     distance = self._calcolaDistanzaSpalle(spalla_s, spalla_d)
 
                 # Togliere per aggiungere altri dati in memoria
-                self.log.add_spalle_distance(spalla_s,spalla_d)
-                gomito_s = target[7]
-                self.log.add_spalla_gomito_distance(spalla_s, gomito_s)
+                #self.log.add_spalle_distance(spalla_s,spalla_d)
+                #gomito_s = target[7]
+                #self.log.add_spalla_gomito_distance(spalla_s, gomito_s)
                      
                 pan = 0
                 tilt = 0
