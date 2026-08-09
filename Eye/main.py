@@ -3,10 +3,13 @@ import serial
 from Camera import Camera
 from TargetTracker import TargetTracker
 from TargetDetector import TargetDetector
+import time
+from PerformanceTracker import PerformanceTracker
 
 cam = Camera()
-target_detector = TargetDetector("Modelli/yolov8n-pose.onnx") 
+target_detector = TargetDetector() 
 target_tracker = TargetTracker()
+performance_tracker = PerformanceTracker("ModelPerformance/Pose_tracking_stats/RTMPose.csv")
 
 try :
     cam.begin()
@@ -14,9 +17,12 @@ try :
     print("Attivo")
 
     while True:
+        tot_latency_start = time.perf_counter() * 1000
         frame = cam.captureFrame()
-
+        
+        inference_latency_start = time.perf_counter() * 1000
         detections = target_detector.detect(frame)
+        inference_latency_end = time.perf_counter() * 1000
 
         if detections:
 
@@ -43,6 +49,9 @@ try :
         if cv2.waitKey(1) == 27:
             break
 
+        tot_latency_end = time.perf_counter() * 1000
+        performance_tracker.addPerformanceStats(tot_latency_end - tot_latency_start, inference_latency_end - inference_latency_start)
+
 
 except KeyboardInterrupt:
     print("\nInterruzione da tastiera")
@@ -52,3 +61,4 @@ finally:
     if serial0 is not None and serial0.is_open:
         serial0.close()
     cv2.destroyAllWindows()
+    performance_tracker.writeToFile()
