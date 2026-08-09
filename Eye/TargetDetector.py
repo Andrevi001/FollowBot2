@@ -1,4 +1,6 @@
-from ultralytics import YOLO
+from rtmlib import Body
+import numpy as np
+import config
 
 class TargetDetector: 
 
@@ -8,23 +10,26 @@ class TargetDetector:
             self.y = y
             self.visibility = visibility
 
-    def __init__(self, filePath):
-        self.detector = YOLO(filePath)
+    def __init__(self, filePath=None):
+        self.detector = Body(
+            mode='lightweight', 
+            backend='onnxruntime', 
+            device='cpu'
+        )
 
     def detect(self, frame):
         targets = []
 
-        raw_targets = self.detector(frame, imgsz=(256, 320), verbose=False)
+        raw_keypoints, scores = self.detector(frame)
 
-        if raw_targets[0].keypoints is None or len(raw_targets[0].keypoints) == 0:
+        if len(raw_keypoints) == 0:
             return targets
         
-        for landmarks, scores in zip(raw_targets[0].keypoints.xyn, raw_targets[0].keypoints.conf):
-            landmarks = landmarks.numpy()
-            scores = scores.numpy()
+        raw_keypoints = raw_keypoints / np.array([config.width, config.height])
+        for landmarks, p_scores in zip(raw_keypoints, scores):
             pose = []
-            for kps, conf in zip(landmarks, scores):
-                pose.append(self.Punto(kps[0], kps[1], conf))
+            for (x, y), conf in zip(landmarks, p_scores):
+                pose.append(self.Punto(x, y, conf))
 
             targets.append(pose)
             
