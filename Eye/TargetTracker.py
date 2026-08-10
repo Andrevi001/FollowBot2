@@ -54,11 +54,7 @@ class TargetTracker():
                 pan = 0
                 tilt = 0
         
-                if abs(error_x) > config.dead_zone:
-                    pan = int(error_x * config.Kgain)
-        
-                if abs(error_y) > config.dead_zone:
-                    tilt = int(error_y * config.Kgain)
+                #implementare un modo migliore per il calcolo pan/tilt. Possibilmente PID.
 
                 landmarks.append((80, pan, tilt, int(distance * 100), center))
 
@@ -76,7 +72,7 @@ class TargetTracker():
 
     def _calcolaDistanzaSpallaGomito(self, spalla, gomito) -> int:
         if gomito.visibility < 0.5:
-            return 255
+            return 2.55
 
         distance_p = math.dist([spalla.x * config.width, spalla.y * config.height], [gomito.x * config.width, gomito.y * config.height])
         
