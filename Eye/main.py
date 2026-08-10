@@ -16,7 +16,9 @@ try :
     while True:
         frame = cam.captureFrame()
 
-        detections = target_detector.detect(frame)
+        target_detector.detect_async(frame)
+
+        detections = target_detector.get_Targets()
 
         if detections:
 
@@ -32,9 +34,6 @@ try :
                         serial0.write(bytes([header, pan & 0xFF, tilt & 0xFF, int(distance) & 0xFF]))
             else:
                 serial0.write(bytes([65, 0, 0, 0]))
-
-        else:
-            serial0.write(bytes([65, 0, 0, 0]))
         
         cv2.imshow("camera", frame)
 
