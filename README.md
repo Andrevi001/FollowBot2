@@ -55,11 +55,11 @@ Nel rover originale è stato impiegato YuNet per la rilevazione dei volti. In qu
 
 | CPU Usage | RAM Usage |
 | :---: | :---: |
-| ![CPU_Percent](Eye/ModelPerformance/Grafici/CPU.png) | ![RAM_MB](Eye/ModelPerformance/Grafici/RAM.png) |
+| ![CPU_Percent](Eye/ModelPerformance/Grafici/face_tracking/CPU.png) | ![RAM_MB](Eye/ModelPerformance/Grafici/face_tracking/RAM.png) |
 
 | Inference Latency | FPS |
 | :---: | :---: |
-| ![Inference_Latency_ms](Eye/ModelPerformance/Grafici/Inference.png) | ![fps](Eye/ModelPerformance/Grafici/fps.png) |
+| ![Inference_Latency_ms](Eye/ModelPerformance/Grafici/face_tracking/Inference.png) | ![fps](Eye/ModelPerformance/Grafici/face_tracking/fps.png) |
 
 #### Considerazioni pratiche ed empiriche:
 Nonostante le metriche favorevoli nei benchmark, i test sul campo evidenziano alcune limitazioni rispetto a YuNet:
