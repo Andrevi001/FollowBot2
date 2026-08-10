@@ -46,7 +46,7 @@ class TargetTracker():
                     center = (int(base_collo_x * config.width), int(base_collo_y * config.height))
                     distance = self._calcolaDistanzaSpalle(spalla_s, spalla_d)
 
-                # Togliere per aggiungere altri dati in memoria
+                # Togliere per aggiungere altri dati in memoria. Attenzione: verifcare che il bersaglio si trovi a 1M di distanza e che non si muova
                 #self.log.add_spalle_distance(spalla_s,spalla_d)
                 #gomito_s = target[14]
                 #self.log.add_spalla_gomito_distance(spalla_s, gomito_s)
