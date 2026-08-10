@@ -16,8 +16,8 @@ class TargetTracker():
             return landmarks
 
         for target in targets:
-            spalla_s = target[5]
-            spalla_d = target[6]
+            spalla_s = target[11]
+            spalla_d = target[12]
                         
             if spalla_s.visibility >= 0.5 or spalla_d.visibility >= 0.5:
 
@@ -29,13 +29,13 @@ class TargetTracker():
                     error_x = spalla_d.x - 0.5
                     error_y = spalla_d.y -0.40
                     center = (int(spalla_d.x * config.width), int(spalla_d.y * config.height))
-                    gomito_d = target[8]
+                    gomito_d = target[13]
                     distance = self._calcolaDistanzaSpallaGomito(spalla_d, gomito_d)
                 elif spalla_d.visibility < 0.5:
                     error_x = spalla_s.x - 0.5
                     error_y = spalla_s.y -0.40
                     center = (int(spalla_s.x * config.width), int(spalla_s.y * config.height))
-                    gomito_s = target[7]
+                    gomito_s = target[14]
                     distance = self._calcolaDistanzaSpallaGomito(spalla_s, gomito_s)
                 else:
                     base_collo_x = (spalla_d.x + spalla_s.x) / 2.0
@@ -48,7 +48,7 @@ class TargetTracker():
 
                 # Togliere per aggiungere altri dati in memoria
                 #self.log.add_spalle_distance(spalla_s,spalla_d)
-                #gomito_s = target[7]
+                #gomito_s = target[14]
                 #self.log.add_spalla_gomito_distance(spalla_s, gomito_s)
                      
                 pan = 0

@@ -1,8 +1,8 @@
-from rtmlib import Body
-import numpy as np
-import config
+import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
-class TargetDetector: 
+class TargetDetector:
 
     class Punto:
         def __init__(self, x, y, visibility):
@@ -10,28 +10,27 @@ class TargetDetector:
             self.y = y
             self.visibility = visibility
 
-    def __init__(self, filePath=None):
-        self.detector = Body(
-            mode='lightweight', 
-            backend='onnxruntime', 
-            device='cpu'
+    def __init__(self):
+        base_options = python.BaseOptions(model_asset_path='Modelli/pose_landmarker_lite.task')
+
+        options = vision.PoseLandmarkerOptions(
+            base_options=base_options,
+            running_mode=vision.RunningMode.IMAGE
         )
 
+        self.detector = vision.PoseLandmarker.create_from_options(options)
+
     def detect(self, frame):
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+
         targets = []
+        landmarks = self.detector.detect(mp_image)
 
-        raw_keypoints, scores = self.detector(frame)
-
-        if len(raw_keypoints) == 0:
-            return targets
-        
-        raw_keypoints = raw_keypoints / np.array([config.width, config.height])
-        for landmarks, p_scores in zip(raw_keypoints, scores):
+        for person_landmarks in landmarks.pose_landmarks:
             pose = []
-            for (x, y), conf in zip(landmarks, p_scores):
-                pose.append(self.Punto(x, y, conf))
+            for kps in person_landmarks:
+                pose.append(self.Punto(kps.x, kps.y, kps.visibility))
 
             targets.append(pose)
-            
-
+        
         return targets
