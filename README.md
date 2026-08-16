@@ -125,7 +125,7 @@ $$\hat{d} = \frac{K_{\text{utilizzata}} \cdot \sqrt{W^2 + H^2}}{d_{\text{pixel}}
 Dove:
 - $d_{\text{pixel}}$ è la distanza euclidea in pixel tra le feature rilevate.
 - $W, H$ sono larghezza e altezza del frame in pixel.
-- $K_{\text{utilizzata}} \in \{K_{\text{spalle}}, K_{\text{spalla\_gomito}}\}$ è la costante di calibrazione.
+- $K_{\text{utilizzata}} \in \{K_{\text{spalle}}, K_{\text{spalla-gomito}}\}$ è la costante di calibrazione.
 ---
 
 ## Uso
