@@ -6,7 +6,7 @@ class TargetTracker():
     def __init__(self):
         self.width = config.width
         self.height = config.height
-        self.log = DistanceLogger("Distance/K_spalle.txt", "Distance/K_spalla_gomito.txt")
+        self.log = DistanceLogger("Distance/Pose/K_spalle.txt", "Distance/Pose/K_spalla_gomito.txt")
 
     def processTargets(self, targets):
 
