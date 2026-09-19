@@ -1,12 +1,22 @@
 import config
 from DistanceLogger import DistanceLogger
 import math
+import time
 
 class TargetTracker():
     def __init__(self):
         self.width = config.width
         self.height = config.height
         self.log = DistanceLogger("Distance/K_spalle.txt", "Distance/K_spalla_gomito.txt")
+        self.deadZone = 0.10
+        self.oldTime = 0
+        self.oldError_x = 0
+        self.integralError_x = 0
+        self.oldError_y = 0
+        self.integralError_y = 0
+        self.Kp = 0.20
+        self.Ki = 0.20
+        self.Kd = 0.20
 
     def processTargets(self, targets):
 
@@ -51,10 +61,8 @@ class TargetTracker():
                 #gomito_s = target[14]
                 #self.log.add_spalla_gomito_distance(spalla_s, gomito_s)
                      
-                pan = 0
-                tilt = 0
-        
-                #implementare un modo migliore per il calcolo pan/tilt. Possibilmente PID.
+                pan = self.PID(error_x, 0) * 53
+                tilt = self.PID(error_y, 1) * 42
 
                 landmarks.append((80, pan, tilt, int(distance * 100), center))
 
@@ -80,3 +88,32 @@ class TargetTracker():
             return 0
 
         return self.log.K_spalla_gomito() / distance_p
+
+    def PID(self, error, selection):
+        integralError = 0
+        derivative = 0
+        now = time.perf_counter()
+        deltaT = now-self.oldTime
+
+        if selection == 0:
+            if self.oldTime != 0:
+                integralError = self.integralError_x + (error*deltaT)
+            if self.oldError_x != 0:
+                derivative = (error - self.oldError_x) / deltaT
+            self.integralError_x = integralError
+            self.oldError_x = error  
+        else:
+            if self.oldTime != 0:
+                integralError = self.integralError_y + (error*deltaT)
+            if self.oldError_y != 0:
+                derivative = (error - self.oldError_y) / deltaT
+            self.integralError_y = integralError
+            self.oldError_y = error
+
+        self.oldTime = now
+
+        P = self.Kp * error
+        I = self.Ki * integralError
+        D = self.Kd * derivative
+
+        return P+I+D
