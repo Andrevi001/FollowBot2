@@ -13,6 +13,7 @@ try :
     serial0 = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
     print("Attivo")
     old_frame = None
+    send_frame = True
 
     while True:
         new_frame = cam.get_frame()
@@ -34,7 +35,11 @@ try :
                         x, y = center
                         cv2.circle(old_frame, (x, y), 3, (0, 255, 0), -1)
 
-                        serial0.write(bytes([header, pan & 0xFF, tilt & 0xFF, int(distance) & 0xFF]))
+                        if send_frame:
+                            serial0.write(bytes([header, pan & 0xFF, tilt & 0xFF, int(distance) & 0xFF]))
+                            send_frame = False
+                        else:
+                            send_frame = True
             else:
                 serial0.write(bytes([65, 0, 0, 0]))
 
@@ -50,6 +55,7 @@ except KeyboardInterrupt:
 
 finally:
     cam.close()
+    target_detector.close()
     if serial0 is not None and serial0.is_open:
         serial0.close()
     cv2.destroyAllWindows()
