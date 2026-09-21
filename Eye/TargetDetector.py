@@ -55,3 +55,6 @@ class TargetDetector:
                 self.new_data = False
                 return self.__new_targets
             return []
+
+    def close(self):
+        self.detector.close()

@@ -1,5 +1,6 @@
 import config
 from DistanceLogger import DistanceLogger
+from PIDPanTilt import PIDPanTilt
 import math
 
 class TargetTracker():
@@ -7,6 +8,8 @@ class TargetTracker():
         self.width = config.width
         self.height = config.height
         self.log = DistanceLogger("Distance/K_spalle.txt", "Distance/K_spalla_gomito.txt")
+        self.pid = PIDPanTilt()
+        self.deadZone = 0.04
 
     def processTargets(self, targets):
 
@@ -27,13 +30,13 @@ class TargetTracker():
                 distance = 0
                 if spalla_s.visibility < 0.5:
                     error_x = spalla_d.x - 0.5
-                    error_y = spalla_d.y -0.40
+                    error_y = spalla_d.y -0.62
                     center = (int(spalla_d.x * config.width), int(spalla_d.y * config.height))
                     gomito_d = target[13]
                     distance = self._calcolaDistanzaSpallaGomito(spalla_d, gomito_d)
                 elif spalla_d.visibility < 0.5:
                     error_x = spalla_s.x - 0.5
-                    error_y = spalla_s.y -0.40
+                    error_y = spalla_s.y -0.62
                     center = (int(spalla_s.x * config.width), int(spalla_s.y * config.height))
                     gomito_s = target[14]
                     distance = self._calcolaDistanzaSpallaGomito(spalla_s, gomito_s)
@@ -42,7 +45,7 @@ class TargetTracker():
                     base_collo_y = (spalla_d.y + spalla_s.y) / 2.0
 
                     error_x = base_collo_x - 0.5
-                    error_y = base_collo_y - 0.40
+                    error_y = base_collo_y - 0.62
                     center = (int(base_collo_x * config.width), int(base_collo_y * config.height))
                     distance = self._calcolaDistanzaSpalle(spalla_s, spalla_d)
 
@@ -50,11 +53,14 @@ class TargetTracker():
                 #self.log.add_spalle_distance(spalla_s,spalla_d)
                 #gomito_s = target[14]
                 #self.log.add_spalla_gomito_distance(spalla_s, gomito_s)
-                     
+                
                 pan = 0
+                if abs(error_x) > self.deadZone: 
+                    pan = int(round(self.pid.calculatePID(error_x, 0) * 53))    
+
                 tilt = 0
-        
-                #implementare un modo migliore per il calcolo pan/tilt. Possibilmente PID.
+                if abs(error_y) > self.deadZone:
+                    tilt = int(round(self.pid.calculatePID(error_y, 1) * 42))
 
                 landmarks.append((80, pan, tilt, int(distance * 100), center))
 
