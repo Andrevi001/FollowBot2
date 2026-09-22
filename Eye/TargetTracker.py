@@ -10,7 +10,7 @@ class TargetTracker():
         """Class constructor"""
         self.width = config.width
         self.height = config.height
-        self.log = DistanceLogger("Distance/K_Shoulders.txt", "Distance/K_shoulder_gomito.txt")
+        self.log = DistanceLogger("Distance/K_Shoulders.txt", "Distance/K_Shoulder_Elbow.txt")
         self.pid = PIDPanTilt()
         self.deadZone = 0.04
 
