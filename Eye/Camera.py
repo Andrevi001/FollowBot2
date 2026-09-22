@@ -4,8 +4,11 @@ import config
 import threading
 
 class Camera():
+    """Class for asynchronous frame capture."""
 
     def __init__(self):
+        """Class constructor"""
+
         self.__frame = []
         self.__new_frame = False
         self._lock = threading.Lock()
@@ -13,6 +16,8 @@ class Camera():
         self.__running = False
 
     def begin(self):
+        """Used to initialize camera and begin a dedicated thread"""
+
         conf = self.picam2.create_preview_configuration(main={"size": (config.width, config.height)})
         self.picam2.configure(conf)
         self.picam2.start()
@@ -27,6 +32,8 @@ class Camera():
         self.__frame = frame
         
     def _threaded_capture(self):
+        """Dedicated to continuos, background capture, through dedicated thread"""
+
         while self.__running:
             frame = self.picam2.capture_array()
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -37,6 +44,12 @@ class Camera():
                 self.__frame = frame
 
     def get_frame(self):
+        """
+        Used to obtain the last available frame, thread safe
+        
+        Returns:
+            numpy.array or None: last available frame
+        """
         with self._lock:
             if self.__new_frame:
                 self.__new_frame = False
@@ -45,6 +58,7 @@ class Camera():
             return None 
 
     def close(self):
+        """Used to safely close this instance of the class"""
         self.__running = False
 
         if self.__thread and self.__thread.is_alive():

@@ -8,12 +8,13 @@ cam = Camera()
 target_detector = TargetDetector() 
 target_tracker = TargetTracker()
 
+#main Loop that coordinates the image capture, image processing and update transmission.
 try :
     cam.begin()
     serial0 = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
-    print("Attivo")
     old_frame = None
     send_frame = True
+    print("Intialized")
 
     while True:
         new_frame = cam.get_frame()
@@ -51,7 +52,7 @@ try :
 
 
 except KeyboardInterrupt:
-    print("\nChiusura in corso")
+    print("\nTerminating program...")
 
 finally:
     cam.close()

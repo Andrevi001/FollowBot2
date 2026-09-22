@@ -1,7 +1,11 @@
 import time
 
 class PIDPanTilt():
+
+    """Class designed to calcultare the PID for the Pan/Tilt mechanism"""
+
     def __init__(self):
+        """Class Constructor"""
         self.oldTime = 0
         self.oldError_x = 0
         self.integralError_x = 0
@@ -15,6 +19,13 @@ class PIDPanTilt():
         self.Kdy = 0.000005
 
     def calculatePID(self, error, selection):
+            """
+            Calculates PID for the Pan/Tilt mechanism.
+
+            Args:
+                error: value on which to calculate the PID
+                selection: value used to determine which constant to use: 0, constants for x axis, 1, constants for y axis. 
+            """
             integralError = 0
             derivative = 0
             now = time.perf_counter()
