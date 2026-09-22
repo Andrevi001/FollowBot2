@@ -3,7 +3,7 @@
 Pan_Tilt::Pan_Tilt() {}
 
 /**
- * Funzione per centrare i servo. 
+ * Function used to center the FOV
  */
 void Pan_Tilt::centerFov() {
     pan = 85;
@@ -13,7 +13,7 @@ void Pan_Tilt::centerFov() {
 }
 
 /**
- * funzione per inizializzare i pin.
+ * Function used to initialize the system
  */
 void Pan_Tilt::begin() {
     servoPan.attach(PAN);
@@ -22,7 +22,10 @@ void Pan_Tilt::begin() {
 }
 
 /**
- * funzione per aggiornare i servo
+ * Updates pan and tilt with offset values
+ * 
+ * @param pan_sum pan offset
+ * @param tilt_sum tilt offset
  */
 void Pan_Tilt::updateServos(int8_t pan_sum, int8_t tilt_sum) {
     pan += pan_sum;
@@ -36,14 +39,14 @@ void Pan_Tilt::updateServos(int8_t pan_sum, int8_t tilt_sum) {
 }
 
 /**
- * funzione per ottenere lo stato attuale del PAN
+ * @return pan value
  */
 int16_t Pan_Tilt::getPan() const {
     return pan;
 }
 
 /**
- * funzione per ottenere lo stato attuale del TILT
+ * @return tilt value
  */
 int16_t Pan_Tilt::getTilt() const {
     return tilt;

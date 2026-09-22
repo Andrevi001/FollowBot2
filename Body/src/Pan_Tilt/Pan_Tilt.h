@@ -7,7 +7,7 @@ constexpr uint8_t PAN = 26;
 constexpr uint8_t TILT = 25;
 
 /**
- * Classe singoletto per la gestione del sistema Pan/Tilt.
+ * Singleton class designed to manage the Pan/Tilt system.
  */
 class Pan_Tilt {
     private:

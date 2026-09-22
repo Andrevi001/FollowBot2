@@ -2,18 +2,18 @@
 #define NEXT_POSITION_GUESSER_H
 
 #include <Arduino.h>
-#include "ListaCircolare/ListaCircolare.h"
+#include "CircularList/CircularList.h"
 
 /**
- * Classe che indovina la prossima posizione del bersaglio basandosi su posizioni precedenti.
+ * Class built to guess the next position of the target based on previous positions.
  */
 struct NextPositionGuesser {
     private:
-    ListaCircolare panValues;
-    ListaCircolare tiltValues;
-    ListaCircolare distanceValues;
+    CircularList panValues;
+    CircularList tiltValues;
+    CircularList distanceValues;
 
-    int16_t mediaPonderata(const int16_t* valori);
+    int16_t weightedAverage(const int16_t* valori);
 
     public:
     void addValues(int16_t pan, int16_t tilt, uint8_t distance);

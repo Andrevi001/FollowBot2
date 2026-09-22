@@ -1,14 +1,14 @@
-#ifndef LISTA_CIRCOLARE_H
-#define LISTA_CIRCOLARE_H
+#ifndef CIRCULAR_LIST_H
+#define CIRCULAR_LIST_H
 
 #include <Arduino.h>
 
 constexpr uint8_t LEN = 15;
 
 /**
- * classe che implementa una lista circolare di interi di lunghezza LEN.
+ * Class that implements a circular list of LEN integers.
  */
-struct ListaCircolare {
+struct CircularList {
     private:
     int16_t entries[LEN] = {0};
     uint8_t next = 0;
@@ -18,4 +18,4 @@ struct ListaCircolare {
     const int16_t* getEntries() const;
 };
 
-#endif // LISTA_CIRCOLARE_H
+#endif

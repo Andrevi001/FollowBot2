@@ -1,62 +1,62 @@
 #include <Arduino.h>
-#include "motori.h"
+#include "motors.h"
 
 void Forward() {
-  //ruota destra
+  //Right wheel
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, HIGH);
 
-  //ruota sinistra
+  //Left wheel
   digitalWrite(BIN1, LOW);
   digitalWrite(BIN2, HIGH);
 }
 
 void Backward() {
-  //ruota sinistra
+  //Left wheel
   digitalWrite(AIN1, HIGH);
   digitalWrite(AIN2, LOW);
 
-  //ruota destra
+  //Right wheel
   digitalWrite(BIN1, HIGH);
   digitalWrite(BIN2, LOW);
 }
 
 void DxRotation() {
-  //ruota sinistra
+  //Left wheel
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, HIGH);
 
-  //ruota destra
+  //Right wheel
   digitalWrite(BIN1, HIGH);
   digitalWrite(BIN2, LOW);
 }
 
 void SxRotation() {
-  //ruota sinistra
+  //Left wheel
   digitalWrite(AIN1, HIGH);
   digitalWrite(AIN2, LOW);
 
-  //ruota destra
+  //Right wheel
   digitalWrite(BIN1, LOW);
   digitalWrite(BIN2, HIGH);
 }
 
 void Stop() {
-  //ruota sinistra
+  //Left wheel
   digitalWrite(AIN1, HIGH);
   digitalWrite(AIN2, HIGH);
 
-  //ruota sinistra
+  //Right wheel
   digitalWrite(BIN1, HIGH);
   digitalWrite(BIN2, HIGH);
 
   delay(100);
 
-  //ruota anteriore sinistra
+  //Left wheel
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, LOW);
 
-  //ruota posteriore destra
+  //Right wheel
   digitalWrite(BIN2, LOW);
   digitalWrite(BIN1, LOW);
 }
