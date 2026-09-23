@@ -50,7 +50,7 @@ class PerformanceTracker():
 
     def stats(self) -> StatsData:
         """
-        Used to obtain current CPU and Ram usage stats.
+        Used to obtain current CPU and RAM usage stats.
         
         Returns:
             StatsData: CPU and Ram usage stats

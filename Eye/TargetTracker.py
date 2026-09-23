@@ -1,35 +1,54 @@
 import config
 from DistanceLogger import DistanceLogger
-from PIDPanTilt import PIDPanTilt
+from PID import PID
 import math
 
 class TargetTracker():
-    """Class designed for continuos tracking of the target."""
+    """Class designed for continuous tracking of the target."""
 
-    def __init__(self):
-        """Class constructor"""
+    def __init__(self, K_shoulders, K_shoulder_elbow):
+        """
+        Class constructor
+
+        Args:
+            K_shoulders: constant to be used for distance calculation based on shoulder width.
+            K_shoulder_elbow: constant to be used for distance calculation based on shoulder to elbow distance.
+        """
         self.width = config.width
         self.height = config.height
-        self.log = DistanceLogger("Distance/K_Shoulders.txt", "Distance/K_Shoulder_Elbow.txt")
-        self.pid = PIDPanTilt()
+        self.diagonal = math.sqrt((config.width**2) + (config.height**2))
+        self.k_shoulders = K_shoulders
+        self.k_shoulder_elbow = K_shoulder_elbow
+        self.pid_pan = PID(0.77, 0.005, 0.04)
+        self.pid_tilt = PID(0.07, 0.003, 0.000005)
         self.deadZone = 0.04
 
     def processTargets(self, targets):
         """
-        Used to calculate the targets position
+        Used to calculate position, distance and PID for each target.
+        This also returns secondary information such as center of the targeting and three TargetDetector.Point for each target.
+        The 3 returned points locate the shoulders and the right elbow.
 
         Args:
-            targets: list of TargetDetector.Pointt, source of the targets pose keypointts.
+            targets: List of pose keypoints for each detected target.
+
+        Returns:
+            tuple: (trackingInfo, secondaryInfo)
+            - trackingInfo: contains position, distance and PID for each target.
+            - secondaryInfo: contains secodary information, center and the three keypoints for each target.
         """
 
-        landmarks = []
+        trackingInfo = []
+        secondaryInfo = []
 
         if not targets:
-            return landmarks
+            return (trackingInfo, secondaryInfo)
 
         for target in targets:
             shoulder_l = target[11]
             shoulder_r = target[12]
+            elbow_l = target[14]
+            elbow_r = target[13]
                         
             if shoulder_l.visibility >= 0.5 or shoulder_r.visibility >= 0.5:
 
@@ -41,14 +60,12 @@ class TargetTracker():
                     error_x = shoulder_r.x - 0.5
                     error_y = shoulder_r.y -0.62
                     center = (int(shoulder_r.x * config.width), int(shoulder_r.y * config.height))
-                    elbow_r = target[13]
-                    distance = self._calcolateDistanceUsingShoulderAndElbow(shoulder_r, elbow_r)
+                    distance = self._calculate_target_distance(shoulder_r, elbow_r, self.k_shoulder_elbow)
                 elif shoulder_r.visibility < 0.5:
                     error_x = shoulder_l.x - 0.5
                     error_y = shoulder_l.y -0.62
                     center = (int(shoulder_l.x * config.width), int(shoulder_l.y * config.height))
-                    elbow_l = target[14]
-                    distance = self._calcolateDistanceUsingShoulderAndElbow(shoulder_l, elbow_l)
+                    distance = self._calculate_target_distance(shoulder_l, elbow_l, self.k_shoulder_elbow)
                 else:
                     neck_base_x = (shoulder_r.x + shoulder_l.x) / 2.0
                     neck_base_y = (shoulder_r.y + shoulder_l.y) / 2.0
@@ -56,63 +73,57 @@ class TargetTracker():
                     error_x = neck_base_x - 0.5
                     error_y = neck_base_y - 0.62
                     center = (int(neck_base_x * config.width), int(neck_base_y * config.height))
-                    distance = self._calcolateDistanceUsingShoulders(shoulder_l, shoulder_r)
-
-                # Remove to add new body part distnace in memory. warning: target has to stay still and be at 100cm form the rover.
-                #self.log.add_spalle_distance(shoulder_l,shoulder_r)
-                #elbow_l = target[14]
-                #self.log.add_shoulder_gomito_distance(shoulder_l, elbow_l)
+                    distance = self._calculate_target_distance(shoulder_l, shoulder_r, self.k_shoulders)
                 
                 pan = 0
                 if abs(error_x) > self.deadZone: 
-                    pan = int(round(self.pid.calculatePID(error_x, 0) * 53))    
+                    pan = int(round(self.pid_pan.calculatePID(error_x) * 53))    
 
                 tilt = 0
                 if abs(error_y) > self.deadZone:
-                    tilt = int(round(self.pid.calculatePID(error_y, 1) * 42))
+                    tilt = int(round(self.pid_tilt.calculatePID(error_y) * 42))
 
-                landmarks.append((80, pan, tilt, int(distance * 100), center))
+                trackingInfo.append((80, pan, tilt, int(distance * 100)))
+                secondaryInfo.append((center, shoulder_l, shoulder_r, elbow_r))
 
-        return landmarks
+        return (trackingInfo, secondaryInfo)
 
-    def _calcolateDistanceUsingShoulders(self, shoulder_l, shoulder_r) -> float:
+    def _calculate_target_distance(self, point_a, point_b, k_distance) -> float:
         """
-        Used to calculate the distance of the target based on shoulder to shoulder distance.
+        Used to calculate the distance of the target. 
+        The calculation based on the distance between two pose keypoints (point_a, point_b)  and their relation with the constant (k_distance).
 
         Args:
-            shoulder_l: TargetDetector.Point, left shoulder coordinates.
-            shoulder_r: TargetDetector.Point, right shoulder coordinates.
+            point_a: TargetDetector.Point, the first point.
+            point_b: TargetDetector.Point, the second point.
+            k_distance: distant measurement constant.
         
         Returns:
             float: calculated distance to the target
         """
-        distance_p = math.dist([shoulder_l.x * config.width, shoulder_l.y * config.height], [shoulder_r.x * config.width, shoulder_r.y * config.height])
-        diagonal = math.sqrt((config.width**2) + (config.height**2))
-        k_relative = self.log.K_shoulders() * diagonal
+
+        if point_a.visibility < 0.5 or point_b.visibility < 0.5:
+            return 2.56
+
+        distance_p = self._calculate_distance(point_a, point_b)
+        k_relative = k_distance * self.diagonal
 
         if distance_p == 0:
             return 0
 
         return k_relative / distance_p
 
-    def _calcolateDistanceUsingShoulderAndElbow(self, shoulder, elbow) -> float:
+    def _calculate_distance(self, point_a, point_b):
         """
-        Used to calculate the distance of the target based on shoulder to elbow distance.
-        
+        Used to calculate the distance between two given TargetDetector.Point.
+        The calculated distance is in pixels so it depends on the camera resolution (config.width, config.height.)
+
         Args:
-            shoulder: TargetDetector.Point, shoulder coordinates.
-            elbow: TargetDetector.Point, elbow coordinates.
-                
-        Returns:
-            float: calculated distance to the target
-        """
-        if elbow.visibility < 0.5:
-            return 2.56
-
-        distance_p = math.dist([shoulder.x * config.width, shoulder.y * config.height], [elbow.x * config.width, elbow.y * config.height])
-        diagonal = math.sqrt((config.width**2) + (config.height**2))
+            point_a: TargetDetector.Point, the first point.
+            point_b: TargetDetector.Point, the second point.
         
-        if distance_p == 0:
-            return 0
+        Returns:
+            distance in pixels between point_a and point_b.
+        """
 
-        return (self.log.K_shoulder_elbow()*diagonal) / distance_p
+        return math.dist([point_a.x * config.width, point_a.y * config.height], [point_b.x * config.width, point_b.y * config.height])

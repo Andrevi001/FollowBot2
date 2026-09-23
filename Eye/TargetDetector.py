@@ -21,7 +21,7 @@ class TargetDetector:
         self.__new_targets = []
         self.__new_data = False
         self._lock = threading.Lock()
-        base_options = python.BaseOptions(model_asset_path='Modelli/pose_landmarker_lite.task')
+        base_options = python.BaseOptions(model_asset_path='Models/pose_landmarker_lite.task')
 
         options = vision.PoseLandmarkerOptions(
             base_options=base_options,
@@ -69,7 +69,7 @@ class TargetDetector:
             self.__new_targets = targets
             self.__new_data = True
 
-    def get_Targets(self):
+    def get_targets(self):
         """
         Used to obtain the targets pose information
 

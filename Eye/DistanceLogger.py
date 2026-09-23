@@ -3,77 +3,48 @@ import config
 import math
 
 class DistanceLogger:
-    """Class used to log body measurments used to calculate the distance form the target"""
-    def __init__(self, path1, path2):
+    """Class used to log body measurements used to calculate the distance from the target"""
+    def __init__(self, path):
         """Class Constructor"""
-        self.__shoulder_path = path1
-        self.__shoulder_elbow_path = path2
-        self.__k_shoulders = 0.0
-        self.__k_shoulder_elbow = 0.0
+        self.__file_path = path
+        self.__k_distance = 0.0
+        self.__distance_log = []
         self.update_K()
     
-    def add_shoulders_distance(self, shoulder_l, shoulder_r):
+    def add_distance(self, point_a, point_b):
         """
-        Used to log a new shoulder to shoulder distance
+        Used to add a new distance,must be used with write to file to save measurments.
 
         Args:
-            shoulder_l: TargetDetector.Point that contains the coordinates of the left shoulder
-            shoulder_l: TargetDetector.Point that contains the coordinates of the right shoulder
+            point_a: TargetDetector.Point that contains the coordinates of the first point
+            point_b: TargetDetector.Point that contains the coordinates of the second point
 
         """
 
-        distance = math.dist([shoulder_l.x * config.width, shoulder_l.y * config.height], [shoulder_r.x * config.width, shoulder_r.y * config.height])
-        with open(self.__shoulder_path, "a") as file:
-            file.write(f"{distance}\n")
+        distance = math.dist([point_a.x * config.width, point_a.y * config.height], [point_b.x * config.width, point_b.y * config.height])
+        self.__distance_log.append(distance)
 
 
-    def add_shoulder_elbow_distance(self, shoulder, elbow):
+    def K_distance(self) -> float:
         """
-        Used to log a new shoulder to elbow distance
-        
-        Args:
-            shoulder: TargetDetector.Point that contains the coordinates of the shoulder
-            elbow: TargetDetector.Point that contains the coordinates of the elbow
-        
+        Used to obtain distance constant
+
+        Returns:
+            float: constant calculated based on the entries of self.__file_path
         """
-
-        distance = math.dist([shoulder.x * config.width, shoulder.y * config.height], [elbow.x * config.width, elbow.y * config.height])
-        with open(self.__shoulder_elbow_path, "a") as file:             
-            file.write(f"{distance}\n")
-
-
-    def K_shoulders(self) -> float:
-        """
-        Used to obtain K_shoulders
-
-        Args:
-            float: constant calculatedbased on the entries of self.__Shoulder_path
-        """
-        return self.__k_shoulders 
-
-    def K_shoulder_elbow(self) -> float:
-        """
-        Used to obtain K_shoulders
-        
-        Args:
-            float: constant calculatedbased on the entries of self.__Shoulder_path
-        """  
-        return  self.__k_shoulder_elbow
+        return self.__k_distance
 
     def update_K(self):
-        """Used to update self.__k_shoulders and self.__k_shoulder_elbow values with information contained in self.__shoulder_path and self.__shoulder_elbow_path"""
+        """Used to update self.__k_distance value with information contained in self.__file_path"""
 
-        diagonal = math.sqrt((config.width**2) + (config.height**2))
-
-        self.__k_shoulders = self._averageDistance(self.__shoulder_path) / diagonal
-        self.__k_shoulder_elbow = self._averageDistance(self.__shoulder_elbow_path) / diagonal
+        self.__k_distance = self._averageDistance(self.__file_path)
 
     def _averageDistance(self, filePath):
         """
         Used to calculate the average distance contained in filePath
 
         Args:
-            filePath: string that pints to the file that contains a set of distances
+            filePath: string that points to the file that contains a set of distances
         """
         file_exists = os.path.exists(filePath)
         
@@ -91,3 +62,15 @@ class DistanceLogger:
             return 0
         
         return sum / n
+
+    def writeToFile(self):
+        """
+        Used to save new distance measurments to self.__file_path, to be used at the end of the program.
+        """
+        diagonal = math.sqrt((config.width**2) + (config.height**2))
+        with open(self.__file_path, "a") as file:
+            for distance in self.__distance_log:
+                file.write(f"{distance/diagonal}\n")
+
+        self.__distance_log = []
+        self.update_K()
