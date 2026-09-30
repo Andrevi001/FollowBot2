@@ -19,9 +19,9 @@ class TargetDetector:
         """Class constructor"""
 
         self.__new_targets = []
-        self.__new_data = False
         self._lock = threading.Lock()
         base_options = python.BaseOptions(model_asset_path='Models/pose_landmarker_lite.task')
+        self.__new_data = False
 
         options = vision.PoseLandmarkerOptions(
             base_options=base_options,
@@ -77,10 +77,9 @@ class TargetDetector:
             List of Point or None, list that countains the key points of the detected poses in the frame, None if there's no new data 
         """
         with self._lock:
-            if self.__new_data:
-                self.__new_data = False
-                return self.__new_targets
-            return None
+            is_new = self.__new_data
+            self.__new_data = False
+            return self.__new_targets, is_new
 
     def close(self):
         """Used to safely close this instance of the class"""

@@ -21,7 +21,7 @@ void setup() {
     //Speed controll pin(PWM)
     ledcSetup(channel, 20000, 8);
     ledcAttachPin(PWM, channel);
-    ledcWrite(channel, 50);
+    ledcWrite(channel, 55);
 
     //STBY always HIGH
     digitalWrite(STBY, HIGH);
@@ -33,7 +33,7 @@ void setup() {
 void loop() {
     readUpdate();
 
-    approach = data.distance > MaxDistanceCm;
-    recede = data.distance < MinDistanceCm && data.distance > 20;
+    approach = data.distance > MaxDistanceCm && data.header == 80;
+    recede = data.distance < MinDistanceCm && data.distance > 20 && data.header == 80;
     react();
 }

@@ -65,8 +65,8 @@ void alignCameraAndBody(uint8_t limSx, uint8_t limDx) {
  */
 void FwBw() {
     if (approach) {
-        if (pt.getPan() > 90 || pt.getPan() < 80) {
-            alignCameraAndBody(90, 80);
+        if (pt.getPan() > 100 || pt.getPan() < 70) {
+            alignCameraAndBody(100, 70);
             return;
         }
         Forward();

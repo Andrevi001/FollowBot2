@@ -67,10 +67,11 @@ class DistanceLogger:
         """
         Used to save new distance measurments to self.__file_path, to be used at the end of the program.
         """
-        diagonal = math.sqrt((config.width**2) + (config.height**2))
-        with open(self.__file_path, "a") as file:
-            for distance in self.__distance_log:
-                file.write(f"{distance/diagonal}\n")
+        if self.__distance_log :
+            diagonal = math.sqrt((config.width**2) + (config.height**2))
+            with open(self.__file_path, "a") as file:
+                for distance in self.__distance_log:
+                    file.write(f"{distance/diagonal}\n")
 
-        self.__distance_log = []
-        self.update_K()
+            self.__distance_log = []
+            self.update_K()

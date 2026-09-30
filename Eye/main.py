@@ -7,10 +7,11 @@ from DistanceLogger import DistanceLogger
 
 cam = Camera()
 target_detector = TargetDetector() 
-shoulders_log = DistanceLogger("K_Shoulders.txt")
-shoulder_elbow_log = DistanceLogger("K_Shoulder_Elbow.txt")
+shoulders_log = DistanceLogger("./Distance/K_Shoulders.txt")
+shoulder_elbow_log = DistanceLogger("./Distance/K_Shoulder_Elbow.txt")
 target_tracker = TargetTracker(shoulders_log.K_distance(), shoulder_elbow_log.K_distance())
-log_body_measurements = False
+log_body_measurements = True
+show_frame = False
 serial0 = None
 
 
@@ -29,7 +30,7 @@ try :
             old_frame = new_frame
             target_detector.detect_async(new_frame)
 
-        detections = target_detector.get_targets()
+        detections, new_data = target_detector.get_targets()
 
         if detections and old_frame is not None:
 
@@ -40,24 +41,24 @@ try :
                     header, pan, tilt, distance = trackingData
                     center, shoulder_l, shoulder_r, elbow_r = secondaryData 
 
-                    if header == 80:
-                        x, y = center
-                        cv2.circle(old_frame, (x, y), 3, (0, 255, 0), -1)
+                    
+                    cv2.circle(old_frame, (center[0], center[1]), 3, (0, 255, 0), -1)
 
-                        if log_body_measurements:
-                            shoulders_log.add_distance(shoulder_l, shoulder_r)
-                            shoulder_elbow_log.add_distance(shoulder_r, elbow_r)
+                    if log_body_measurements and new_data:
+                        """Warning: verify that the target is at 100 cm from the rover and that they don't move"""
+                        shoulders_log.add_distance(shoulder_l, shoulder_r)
+                        shoulder_elbow_log.add_distance(shoulder_r, elbow_r)
 
-                        if send_frame:
-                            serial0.write(bytes([header & 0xFF, pan & 0xFF, tilt & 0xFF, int(distance) & 0xFF]))
-                            send_frame = False
-                        else:
-                            send_frame = True
-            else:
-                serial0.write(bytes([65, 0, 0, 0]))
-
+                    if send_frame:
+                        serial0.write(bytes([header & 0xFF, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
+                        send_frame = False
+                    else:
+                        send_frame = True
+        else:
+            serial0.write(bytes([65, 0, 0, 0]))
         
-        if old_frame is not None:
+        
+        if old_frame is not None and show_frame:
             cv2.imshow("camera", old_frame)
 
         if cv2.waitKey(1) == 27:

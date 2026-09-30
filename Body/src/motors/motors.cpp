@@ -50,8 +50,6 @@ void Stop() {
   digitalWrite(BIN1, HIGH);
   digitalWrite(BIN2, HIGH);
 
-  delay(100);
-
   //Left wheel
   digitalWrite(AIN1, LOW);
   digitalWrite(AIN2, LOW);

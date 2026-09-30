@@ -19,8 +19,8 @@ class TargetTracker():
         self.diagonal = math.sqrt((config.width**2) + (config.height**2))
         self.k_shoulders = K_shoulders
         self.k_shoulder_elbow = K_shoulder_elbow
-        self.pid_pan = PID(0.77, 0.005, 0.04)
-        self.pid_tilt = PID(0.07, 0.003, 0.000005)
+        self.pid_pan = PID(0.074, 0.007, 0.003)
+        self.pid_tilt = PID(0.07, 0.008, 0.003)
         self.deadZone = 0.04
 
     def processTargets(self, targets):
