@@ -10,7 +10,7 @@ target_detector = TargetDetector()
 shoulders_log = DistanceLogger("./Distance/K_Shoulders.txt")
 shoulder_elbow_log = DistanceLogger("./Distance/K_Shoulder_Elbow.txt")
 target_tracker = TargetTracker(shoulders_log.K_distance(), shoulder_elbow_log.K_distance())
-log_body_measurements = True
+log_body_measurements = False
 show_frame = False
 serial0 = None
 

@@ -18,9 +18,10 @@ class TargetTracker():
         self.height = config.height
         self.diagonal = math.sqrt((config.width**2) + (config.height**2))
         self.k_shoulders = K_shoulders
+        self.min_K_shoulders = (K_shoulders / 100) * 32 * self.diagonal
         self.k_shoulder_elbow = K_shoulder_elbow
         self.pid_pan = PID(0.074, 0.007, 0.003)
-        self.pid_tilt = PID(0.07, 0.008, 0.003)
+        self.pid_tilt = PID(0.065, 0.0025, 0.001)
         self.deadZone = 0.04
 
     def processTargets(self, targets):
@@ -47,44 +48,51 @@ class TargetTracker():
         for target in targets:
             shoulder_l = target[11]
             shoulder_r = target[12]
-            elbow_l = target[14]
-            elbow_r = target[13]
-                        
-            if shoulder_l.visibility >= 0.5 or shoulder_r.visibility >= 0.5:
+            elbow_l = target[13]
+            elbow_r = target[14]
+            
+            shoulder_distance = self._calculate_distance(shoulder_l, shoulder_r)
+            error_x = 0
+            error_y = 0
+            center = ()
+            distance = 0
 
-                error_x = 0
-                error_y = 0
-                center = ()
-                distance = 0
-                if shoulder_l.visibility < 0.5:
+            if shoulder_distance < self.min_K_shoulders:
+
+                if  shoulder_l.visibility < 0.7:
                     error_x = shoulder_r.x - 0.5
                     error_y = shoulder_r.y -0.62
                     center = (int(shoulder_r.x * config.width), int(shoulder_r.y * config.height))
                     distance = self._calculate_target_distance(shoulder_r, elbow_r, self.k_shoulder_elbow)
-                elif shoulder_r.visibility < 0.5:
+                    print("R")
+                else:                        
                     error_x = shoulder_l.x - 0.5
                     error_y = shoulder_l.y -0.62
                     center = (int(shoulder_l.x * config.width), int(shoulder_l.y * config.height))
                     distance = self._calculate_target_distance(shoulder_l, elbow_l, self.k_shoulder_elbow)
-                else:
-                    neck_base_x = (shoulder_r.x + shoulder_l.x) / 2.0
-                    neck_base_y = (shoulder_r.y + shoulder_l.y) / 2.0
+                    print("L")    
+            else:
+                neck_base_x = (shoulder_r.x + shoulder_l.x) / 2.0
+                neck_base_y = (shoulder_r.y + shoulder_l.y) / 2.0
 
-                    error_x = neck_base_x - 0.5
-                    error_y = neck_base_y - 0.62
-                    center = (int(neck_base_x * config.width), int(neck_base_y * config.height))
-                    distance = self._calculate_target_distance(shoulder_l, shoulder_r, self.k_shoulders)
-                
-                pan = 0
-                if abs(error_x) > self.deadZone: 
-                    pan = int(round(self.pid_pan.calculatePID(error_x) * 53))    
+                error_x = neck_base_x - 0.5
+                error_y = neck_base_y - 0.62
+                center = (int(neck_base_x * config.width), int(neck_base_y * config.height))
+                distance = self._calculate_target_distance(shoulder_l, shoulder_r, self.k_shoulders)
+                print("S")
 
-                tilt = 0
-                if abs(error_y) > self.deadZone:
-                    tilt = int(round(self.pid_tilt.calculatePID(error_y) * 42))
+            print(distance)
 
-                trackingInfo.append((80, pan, tilt, int(distance * 100)))
-                secondaryInfo.append((center, shoulder_l, shoulder_r, elbow_r))
+            pan = 0
+            if abs(error_x) > self.deadZone: 
+                pan = int(round(self.pid_pan.calculatePID(error_x) * 53))    
+
+            tilt = 0
+            if abs(error_y) > self.deadZone:
+                tilt = int(round(self.pid_tilt.calculatePID(error_y) * 42))
+
+            trackingInfo.append((80, pan, tilt, int(distance * 100)))
+            secondaryInfo.append((center, shoulder_l, shoulder_r, elbow_r))
 
         return (trackingInfo, secondaryInfo)
 
