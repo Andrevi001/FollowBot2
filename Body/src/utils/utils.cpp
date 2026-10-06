@@ -24,7 +24,8 @@ void readUpdate() {
         data.tilt_next = Serial2.read();
         data.distance = Serial2.read();
 
-        if (data.header == 80) {
+        if (data.header == 70 || data.header == 76) {
+            Serial.printf("%d\n", data.header);
             guesser.addValues(data.pan_next, data.tilt_next, data.distance);
         } else {
             int16_t panGuess;
@@ -42,16 +43,16 @@ void readUpdate() {
 
 /** 
  * used to align the rover's body and camera. 
- * if limSx is exceeded the body will turn counterclockwise, 
- * if limDx is exceeded the body will turn clockwise.
+ * if limSx is exceeded and header is 70, the body will turn counterclockwise, 
+ * if limDx is exceeded and header is 70, the body will turn clockwise.
  * 
  * @param limSx left side limit for the value of pan
  * @param limDx right side limit for the value of pan 
  */
 void alignCameraAndBody(uint8_t limSx, uint8_t limDx) {
-    if (pt.getPan() > limSx && data.header == 80) {
+    if (pt.getPan() > limSx && data.header == 70) {
         SxRotation();
-    } else if (pt.getPan() < limDx && data.header == 80) {
+    } else if (pt.getPan() < limDx && data.header == 70) {
         DxRotation();
     } else {
         Stop();
@@ -92,7 +93,7 @@ void react() {
     if (state.state() == TOWER) {
         alignCameraAndBody(150,20);
     }
-
+    
     if (approach || recede) {
         FwBw();
         state.rover();

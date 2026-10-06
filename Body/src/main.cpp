@@ -33,7 +33,7 @@ void setup() {
 void loop() {
     readUpdate();
 
-    approach = data.distance > MaxDistanceCm && data.header == 80;
-    recede = data.distance < MinDistanceCm && data.distance > 20 && data.header == 80;
+    approach = data.distance > MaxDistanceCm && data.header == 70;
+    recede = data.distance < MinDistanceCm && data.distance > 20 && data.header == 70;
     react();
 }

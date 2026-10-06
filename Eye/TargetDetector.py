@@ -1,19 +1,12 @@
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+from Point import Point
 import time
 import threading
 
 class TargetDetector:
     """Class for asynchronous target detection using MediaPipe PoseLandmarker."""
-
-    class Point:
-        """Internal class that defines a 2D point and it's visibilty"""
-
-        def __init__(self, x, y, visibility):
-            self.x = x
-            self.y = y
-            self.visibility = visibility
 
     def __init__(self):
         """Class constructor"""
@@ -61,7 +54,7 @@ class TargetDetector:
             for person_landmarks in result.pose_landmarks:
                 pose = []
                 for kps in person_landmarks:
-                    pose.append(self.Point(kps.x, kps.y, kps.visibility))
+                    pose.append(Point(kps.x, kps.y, kps.visibility))
 
                 targets.append(pose)
 
