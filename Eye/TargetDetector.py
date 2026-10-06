@@ -11,7 +11,7 @@ class TargetDetector:
     def __init__(self):
         """Class constructor"""
 
-        self.__new_targets = []
+        self.__new_targets = ([],[])
         self._lock = threading.Lock()
         base_options = python.BaseOptions(model_asset_path='Models/pose_landmarker_lite.task')
         self.__new_data = False
@@ -59,7 +59,7 @@ class TargetDetector:
                 targets.append(pose)
 
         with self._lock:
-            self.__new_targets = targets
+            self.__new_targets = (targets, result.pose_world_landmarks)
             self.__new_data = True
 
     def get_targets(self):
