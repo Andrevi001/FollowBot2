@@ -8,8 +8,7 @@ from DistanceLogger import DistanceLogger
 cam = Camera()
 target_detector = TargetDetector() 
 shoulders_log = DistanceLogger("./Distance/K_Shoulders.txt")
-shoulder_elbow_log = DistanceLogger("./Distance/K_Shoulder_Elbow.txt")
-target_tracker = TargetTracker(shoulders_log.K_distance(), shoulder_elbow_log.K_distance())
+target_tracker = TargetTracker(shoulders_log.K_distance())
 log_body_measurements = False
 show_frame = True
 serial0 = None
@@ -39,14 +38,13 @@ try :
             if trackingInfo and secondaryInfo:
                 for trackingData, secondaryData in zip(trackingInfo, secondaryInfo):
                     pan, tilt, distance = trackingData
-                    center, shoulder_r, shoulder_l, elbow_l = secondaryData 
+                    center, shoulder_r, shoulder_l = secondaryData 
 
                     cv2.circle(old_frame, (center[0], center[1]), 3, (0, 255, 0), -1)
 
                     if log_body_measurements and new_data:
                         """Warning: verify that the target is at 100 cm from the rover and that they don't move"""
                         shoulders_log.add_distance(shoulder_r, shoulder_l)
-                        shoulder_elbow_log.add_distance(shoulder_l, elbow_l)
 
                     if send_frame and not log_body_measurements:
                         serial0.write(bytes([70, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
@@ -76,5 +74,4 @@ finally:
     if serial0 is not None and serial0.is_open:
         serial0.close()
     shoulders_log.writeToFile()
-    shoulder_elbow_log.writeToFile()
     cv2.destroyAllWindows()
