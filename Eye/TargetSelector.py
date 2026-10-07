@@ -3,14 +3,28 @@ from Point import Point
 import math
 
 class TargetSelector():
+    """Class designed to select the tracking target"""
 
     def __init__(self):
+        """Class constructor"""
         self.__center = Point(0.5, 0.5, 0)
 
-    def select(self, targets):
+    def select(self, poses):
+        """
+        Used to parse the given poses and select the subject of tracking.
+        The target will be the pose that is closest to the center of the frame.
+        
+        Args:
+            poses: List of Lists containg for each pose the relative landmarks
+
+        Returns:
+            target: List containg the targets pose landmarks.
+        
+        """
+        
         closest = None
         min_distance = math.inf
-        for target in targets:
+        for target in poses:
             shoulder_l = target[11]
             shoulder_r = target[12]
 
