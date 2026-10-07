@@ -4,10 +4,13 @@ from Camera import Camera
 from TargetTracker import TargetTracker
 from TargetDetector import TargetDetector
 from DistanceLogger import DistanceLogger
+from TargetSelector import TargetSelector
+
 
 cam = Camera()
 target_detector = TargetDetector() 
 shoulders_log = DistanceLogger("./Distance/K_Shoulders.txt")
+target_selector = TargetSelector()
 target_tracker = TargetTracker(shoulders_log.K_distance())
 log_body_measurements = False
 show_frame = True
@@ -33,7 +36,8 @@ try :
 
         if detections and old_frame is not None:
 
-            trackingInfo, secondaryInfo = target_tracker.processTargets(detections)
+            target = target_selector.select(detections)
+            trackingInfo, secondaryInfo = target_tracker.processTarget(target)
 
             if trackingInfo and secondaryInfo:
                 for trackingData, secondaryData in zip(trackingInfo, secondaryInfo):
