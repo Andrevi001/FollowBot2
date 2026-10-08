@@ -51,7 +51,7 @@ def grafico(categoria, valore1, valore2, valore3, label1, label2, label3, titolo
     plt.savefig(file, dpi=300, bbox_inches='tight')
     plt.close()
 
-grafico(categorie[0], MPose_pr[0], YoLo_pr[0], RTMP_pr[0], 'MediaPipePose', 'YoLov8Pose', 'RTMPose', "Confronto Percentuale CPU", "CPU.png")
-grafico(categorie[1], MPose_pr[1], YoLo_pr[1], RTMP_pr[1], 'MediaPipePose', 'YoLov8Pose', 'RTMPose', "Confronto RAM in MB", "RAM.png")
-grafico(categorie[2], MPose_pr[2], YoLo_pr[2], RTMP_pr[2], 'MediaPipePose', 'YoLov8Pose', 'RTMPose', "Confronto Inference Latency in ms", "Inference.png")
-grafico(categorie[3], MPose_pr[3], YoLo_pr[3], RTMP_pr[3], 'MediaPipePose', 'YoLov8Pose', 'RTMPose', "Confronto fps", "fps.png")
+grafico(categorie[0], MPose_pr[0], YoLo_pr[0], RTMP_pr[0], 'MediaPipePose', 'YoLov8Pose', 'RTMPose', "CPU(%) comparison", "CPU.png")
+grafico(categorie[1], MPose_pr[1], YoLo_pr[1], RTMP_pr[1], 'MediaPipePose', 'YoLov8Pose', 'RTMPose', "RAM(MB) comparison", "RAM.png")
+grafico(categorie[2], MPose_pr[2], YoLo_pr[2], RTMP_pr[2], 'MediaPipePose', 'YoLov8Pose', 'RTMPose', "Inference Latency(ms) comparison", "Inference.png")
+grafico(categorie[3], MPose_pr[3], YoLo_pr[3], RTMP_pr[3], 'MediaPipePose', 'YoLov8Pose', 'RTMPose', "fps comparison", "fps.png")

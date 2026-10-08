@@ -6,7 +6,6 @@ from TargetDetector import TargetDetector
 from DistanceLogger import DistanceLogger
 from TargetSelector import TargetSelector
 
-
 cam = Camera()
 target_detector = TargetDetector() 
 shoulders_log = DistanceLogger("./Distance/K_Shoulders.txt")
@@ -22,10 +21,11 @@ try :
     cam.begin()
     serial0 = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
     old_frame = None
-    send_frame = False
+    send_frame = True
     print("Intialized")
 
     while True:
+        
         new_frame = cam.get_frame()
 
         if new_frame is not None:
@@ -55,7 +55,7 @@ try :
                         send_frame = False
                     elif send_frame and log_body_measurements:
                         serial0.write(bytes([76, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
-                        send_frame = False            
+                        send_frame = False
                     else:
                         send_frame = True
         else:
@@ -66,7 +66,7 @@ try :
             cv2.imshow("camera", old_frame)
 
         if cv2.waitKey(1) == 27:
-            break
+            break            
 
 
 except KeyboardInterrupt:
