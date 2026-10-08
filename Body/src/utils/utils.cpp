@@ -25,7 +25,6 @@ void readUpdate() {
         data.distance = Serial2.read();
 
         if (data.header == 70 || data.header == 76) {
-            Serial.printf("%d\n", data.header);
             guesser.addValues(data.pan_next, data.tilt_next, data.distance);
         } else {
             int16_t panGuess;
