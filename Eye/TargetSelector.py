@@ -1,41 +1,50 @@
 import config
 from Point import Point
 import math
+from PoseDistance import PoseDistance
+from Identifier import Identifier
 
 class TargetSelector():
     """Class designed to select the tracking target"""
 
-    def __init__(self):
+    def __init__(self, chromatic_identifier: Identifier, threshold: float):
         """Class constructor"""
         self.__center = Point(0.5, 0.5, 0)
+        self.__chromatic_identifier = chromatic_identifier
+        self.__threshold = threshold
 
-    def select(self, poses):
+    def select(self, poses, frame):
         """
         Used to parse the given poses and select the subject of tracking.
-        The target will be the pose that is closest to the center of the frame.
+        The pose to be tracked will be the one whose similarity score exceeds the given threshold.
+        The similarity score is calculated by the identifier.
+        If more poses score above the threshold, the one to track will be the one closest to the center of the frame.
         
         Args:
-            poses: List of Lists containg for each pose the relative landmarks
+            poses: List of List containing for each pose the corresponding landmarks
 
         Returns:
-            target: List containg the targets pose landmarks.
+            pose: List of landmarks representing the selected pose.
         
         """
-        
-        closest = None
-        min_distance = math.inf
-        for target in poses:
-            shoulder_l = target[11]
-            shoulder_r = target[12]
+        filtered_poses = []
+        for pose in poses:
+            shoulder_l = pose[11]
+            shoulder_r = pose[12]
 
             pose_center = Point((shoulder_r.x + shoulder_l.x)/2, (shoulder_r.y + shoulder_l.y)/2, 0)
             distance_from_center = self._calculate_distance(pose_center, self.__center)
-
-            if distance_from_center < min_distance:
-               closest = target
-               min_distance = distance_from_center
-
-        return closest 
+            
+            if self.__chromatic_identifier.verify(pose, frame) > self.__threshold:
+                filtered_poses.append(PoseDistance(pose, distance_from_center))
+        
+        if not filtered_poses:
+            return None
+        else:
+            filtered_poses.sort()
+            return filtered_poses[0].pose
+        
+        
 
     def _calculate_distance(self, point_a, point_b):
             """

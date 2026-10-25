@@ -69,7 +69,7 @@ class ChromaticIdentifier(Identifier):
         return  np.mean(cropped_frame, axis=(0, 1))
         
 
-    def crop_around(self, frame, center: Point, length: int):
+    def _crop_around(self, frame, center: Point, length: int):
         """
         Crops a square with the specified side length, centered around the given point in the frame.
         

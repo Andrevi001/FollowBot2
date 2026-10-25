@@ -32,11 +32,11 @@ try :
             old_frame = new_frame
             target_detector.detect_async(new_frame)
 
-        detections, new_data = target_detector.get_targets()
+        detections, detection_frame,  new_data = target_detector.get_targets()
 
         if detections and old_frame is not None:
 
-            target = target_selector.select(detections)
+            target = target_selector.select(detections, detection_frame)
             trackingInfo, secondaryInfo = target_tracker.processTarget(target)
 
             if trackingInfo and secondaryInfo:

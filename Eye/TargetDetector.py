@@ -12,9 +12,10 @@ class TargetDetector:
         """Class constructor"""
 
         self.__new_targets = []
+        self.__detection_frame = None
+        self.__new_data = False
         self._lock = threading.Lock()
         base_options = python.BaseOptions(model_asset_path='Models/pose_landmarker_lite.task')
-        self.__new_data = False
 
         options = vision.PoseLandmarkerOptions(
             base_options=base_options,
@@ -38,13 +39,13 @@ class TargetDetector:
         self.detector.detect_async(mp_image, timestamp)
 
 
-    def _internal_callback(self, result, _output_image, _timestamp_ms):
+    def _internal_callback(self, result, output_image, _timestamp_ms):
         """
         Used as an internal callback for the asynchronous detection, required by self.detector
 
         Args:
             result: detection results, pose_landmarks and pose_world_landmarks.
-            _output_image: the original frame on which the target detection was processed.
+            output_image: the original frame on which the target detection was processed.
             _timestamp_ms: time stamp in ms of the original frame.        
         """
 
