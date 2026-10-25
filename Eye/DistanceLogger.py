@@ -16,8 +16,8 @@ class DistanceLogger:
         Used to add a new distance,must be used with write to file to save measurments.
 
         Args:
-            point_a: TargetDetector.Point that contains the coordinates of the first point
-            point_b: TargetDetector.Point that contains the coordinates of the second point
+            point_a: Point that contains the coordinates of the first point
+            point_b: Point that contains the coordinates of the second point
 
         """
 
