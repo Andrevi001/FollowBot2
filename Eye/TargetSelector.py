@@ -4,14 +4,30 @@ import math
 from PoseDistance import PoseDistance
 from Identifier import Identifier
 
-class TargetSelector():
+class TargetSelector:
     """Class designed to select the tracking target"""
 
-    def __init__(self, chromatic_identifier: Identifier, threshold: float):
+    def __init__(self, identifier: Identifier, threshold: float):
         """Class constructor"""
         self.__center = Point(0.5, 0.5, 0)
-        self.__chromatic_identifier = chromatic_identifier
+        self.__identifier = identifier
         self.__threshold = threshold
+    
+    def enroll(self, samples):
+        enrollement = []
+        for poses, frame in samples:
+            min_distance = math.inf
+            min_pose = []
+            for pose in poses:
+                distance_from_center = self._pose_distance_from_center(pose)
+                if distance_from_center < min_distance:
+                    min_distance = distance_from_center
+                    min_pose = pose
+            
+            enrollement.append((min_pose, frame))
+        
+        self.__identifier.enroll(enrollement)
+            
 
     def select(self, poses, frame):
         """
@@ -29,13 +45,10 @@ class TargetSelector():
         """
         filtered_poses = []
         for pose in poses:
-            shoulder_l = pose[11]
-            shoulder_r = pose[12]
-
-            pose_center = Point((shoulder_r.x + shoulder_l.x)/2, (shoulder_r.y + shoulder_l.y)/2, 0)
-            distance_from_center = self._calculate_distance(pose_center, self.__center)
             
-            if self.__chromatic_identifier.verify(pose, frame) > self.__threshold:
+            distance_from_center = self._pose_distance_from_center(pose)
+            
+            if self.__identifier.verify((pose, frame)) > self.__threshold:
                 filtered_poses.append(PoseDistance(pose, distance_from_center))
         
         if not filtered_poses:
@@ -44,19 +57,20 @@ class TargetSelector():
             filtered_poses.sort()
             return filtered_poses[0].pose
         
-        
-
-    def _calculate_distance(self, point_a, point_b):
-            """
-            Used to calculate the distance between two given Point.
-            The calculated distance is in pixels so it depends on the camera resolution (config.width, config.height.)
-    
-            Args:
-                point_a: Point, the first point.
-                point_b: Point, the second point.
+    def _pose_distance_from_center(self, pose):
+        """
+        Used to calculate the distance between the pose and the center of the frame.
+        The calculated distance is in pixels so it depends on the camera resolution (config.width, config.height.)
             
-            Returns:
-                distance in pixels between point_a and point_b.
-            """
-    
-            return math.dist([point_a.x * config.width, point_a.y * config.height], [point_b.x * config.width, point_b.y * config.height])
+        Args:
+            pose: List of Point, pose keypoints.
+        Returns:
+            distance in pixels between pose and the center of the frame.
+        """
+        
+        shoulder_l = pose[11]
+        shoulder_r = pose[12]
+        
+        pose_center = Point((shoulder_r.x + shoulder_l.x)/2, (shoulder_r.y + shoulder_l.y)/2, 0)
+        
+        return math.dist([pose_center.x * config.width, pose_center.y * config.height], [self.__center.x * config.width, self.__center.y * config.height])

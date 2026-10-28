@@ -1,19 +1,34 @@
 from Identifier import Identifier
 from Point import Point
 import numpy as np
-from DistanceLogger import DistanceLogger
 import math
 import config
+import cv2
+
+side = 100
+
+
 
 class ChromaticIdentifier(Identifier):
-    def __init__(self):
+    def __init__(self, portion):
+        """
+        Class constructor
+
+        Args:
+            pixels: value between 0 and 1 that indicates the portion of the frame to be used as a feature extraction region.
+                    the region is a square that covers part of the torso area.
+        
+        """
         self.__id = None
+        self.__portion = portion
     
     def enroll(self, samples):
         mean_colors = []
         for pose, frame in samples:
             mean_color = self._calculate_mean_color(pose, frame)
-            mean_colors.append(mean_color)
+            
+            if mean_color is not None:
+                mean_colors.append(mean_color)
         
         self.__id = np.mean(mean_colors, axis=0)
 
@@ -24,6 +39,9 @@ class ChromaticIdentifier(Identifier):
         
         pose, frame = sample
         subject_mean_color = self._calculate_mean_color(pose, frame)
+        if subject_mean_color is None:
+            return -2
+        
         comparison = []
         for identity, subject in zip(self.__id, subject_mean_color):
             lesser = min(identity, subject)
@@ -38,7 +56,7 @@ class ChromaticIdentifier(Identifier):
         
 
 
-    def _calculate_mean_color(self, pose,frame):
+    def _calculate_mean_color(self, pose, frame):
         """
         Calculates the mean color of the pose in the frame.
         The average is calculated over the torso region of the pose. 
@@ -48,23 +66,33 @@ class ChromaticIdentifier(Identifier):
             pose: List of Point that contains the pose keypoints.
             frame: numpy.array, frame that is relative to the given keypoints.
         Returns:
-            numpy.array that contains the average color in BGR format, [B, G, R]
+            numpy.array that contains the average color in RGB format, [R, G, B]
         """
 
         shoulder_l = pose[11]
         shoulder_r = pose[12]
-        hip_l = pose[23]
-        hip_r = pose[24]
-
             
-        shoulder_center = Point((shoulder_l.x + shoulder_r.x)/2, (shoulder_l.y + shoulder_r.y)/2, (shoulder_l.visibility + shoulder_r.visibility)/2)
-        hip_center = Point((hip_l.x + hip_r.x)/2, (hip_l.y + hip_r.y)/2, (hip_l.visibility + hip_r.visibility)/2)
-        center = Point((shoulder_center.x + hip_center.x)/2, (shoulder_center.y + hip_center.y)/2, (shoulder_center.visibility + hip_center.visibility)/2)
+        shoulder_center = Point((shoulder_l.x + shoulder_r.x)/2, (shoulder_l.y + shoulder_r.y)/2 + 0.05, (shoulder_l.visibility + shoulder_r.visibility)/2)
 
         distance = self._calculate_distance(shoulder_l, shoulder_r)
-        pixels = int(round(distance*0.10))
+        pixels = int(round(distance*self.__portion))
 
-        cropped_frame = self.crop_around(frame, center, pixels)
+        half = pixels // 2
+        x = int(shoulder_center.x * config.width)
+        y = int(shoulder_center.y * config.height)
+        top_left = (x - half, y - half)
+        bottom_right = (x + half, y + half)
+        if frame is not None:
+            img = frame.numpy_view().copy()
+            cv2.rectangle(img, top_left, bottom_right, (0, 255, 0), 2)
+            cv2.imshow("camera", img)
+            cv2.waitKey(1)
+
+
+        cropped_frame = self._crop_around(frame, shoulder_center, pixels)
+        
+        if cropped_frame is None:
+            return None
         
         return  np.mean(cropped_frame, axis=(0, 1))
         
@@ -80,20 +108,18 @@ class ChromaticIdentifier(Identifier):
         Returns:
             numpy.array containing the cropped area
         """
-        
-        height, width = frame.shape[:2]
-        half = length // 2
 
-        x = center.x * config.width
-        y = center.y * config.height
+        img = frame.numpy_view()
+        h, w = img.shape[:2]
 
-        x1 = max(0, int(x - half))
-        x2 = min(width, int(x + half))
+        x = round(center.x * w) - length // 2
+        y = round(center.y * h) - length // 2
+        x1, y1 = x + length, y + length
 
-        y1 = max(0, int(y - half))
-        y2 = min(height, int(y + half))
+        if x < 0 or y < 0 or x1 > w or y1 > h:
+            return None
 
-        return frame[y1:y2, x1:x2]
+        return img[y:y1, x:x1]
     
     def _calculate_distance(self, point_a, point_b):
         """

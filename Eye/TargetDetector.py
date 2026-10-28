@@ -62,6 +62,7 @@ class TargetDetector:
         with self._lock:
             self.__new_targets = targets
             self.__new_data = True
+            self.__detection_frame = output_image
 
     def get_targets(self):
         """
@@ -73,7 +74,7 @@ class TargetDetector:
         with self._lock:
             is_new = self.__new_data
             self.__new_data = False
-            return self.__new_targets, is_new
+            return self.__new_targets, self.__detection_frame, is_new
 
     def close(self):
         """Used to safely close this instance of the class"""

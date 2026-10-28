@@ -17,6 +17,7 @@ class Identifier(ABC):
         """
         Used, after succesfull enrollement, to compare the given pose against the enrolled target.
         If used before a seccesfull enrolement, it will return -1.
+        If the verification wasn't possible it will return -2. 
 
         Retuns:
             float: Similarity score.
