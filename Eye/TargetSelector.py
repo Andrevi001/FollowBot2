@@ -2,16 +2,16 @@ import config
 from Point import Point
 import math
 from PoseDistance import PoseDistance
-from Identifier import Identifier
+from Identifier.Identifier import Identifier
+from Identifier.Verdict import Verdict
 
 class TargetSelector:
     """Class designed to select the tracking target"""
 
-    def __init__(self, identifier: Identifier, threshold: float):
+    def __init__(self, identifier: Identifier):
         """Class constructor"""
         self.__center = Point(0.5, 0.5, 0)
         self.__identifier = identifier
-        self.__threshold = threshold
     
     def enroll(self, samples):
         enrollement = []
@@ -47,8 +47,9 @@ class TargetSelector:
         for pose in poses:
             
             distance_from_center = self._pose_distance_from_center(pose)
+            verdict = self.__identifier.verify((pose, frame))
             
-            if self.__identifier.verify((pose, frame)) > self.__threshold:
+            if verdict == Verdict.MATCH:
                 filtered_poses.append(PoseDistance(pose, distance_from_center))
         
         if not filtered_poses:

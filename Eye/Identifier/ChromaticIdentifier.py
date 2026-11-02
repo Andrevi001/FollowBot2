@@ -1,7 +1,8 @@
-from Identifier import Identifier
+from Identifier.Identifier import Identifier
 from Point import Point
 import numpy as np
 import math
+from Identifier.Verdict import Verdict
 import config
 import cv2
 
@@ -10,7 +11,7 @@ side = 100
 
 
 class ChromaticIdentifier(Identifier):
-    def __init__(self, portion):
+    def __init__(self, portion, threshold):
         """
         Class constructor
 
@@ -19,8 +20,8 @@ class ChromaticIdentifier(Identifier):
                     the region is a square that covers part of the torso area.
         
         """
+        super().__init__(portion, threshold)
         self.__id = None
-        self.__portion = portion
     
     def enroll(self, samples):
         mean_colors = []
@@ -35,12 +36,13 @@ class ChromaticIdentifier(Identifier):
     def verify(self, sample):
         
         if self.__id is None:
-            return -1
+            return Verdict.NOT_ENROLLED
         
         pose, frame = sample
         subject_mean_color = self._calculate_mean_color(pose, frame)
+        
         if subject_mean_color is None:
-            return -2
+            return Verdict.NOT_VERIFIABLE
         
         comparison = []
         for identity, subject in zip(self.__id, subject_mean_color):
@@ -52,7 +54,12 @@ class ChromaticIdentifier(Identifier):
             else:
                 comparison.append(lesser/greater)
             
-        return np.mean(comparison)
+        comparison_result =  np.mean(comparison)
+        
+        if comparison_result >= self._threshold:
+            return Verdict.MATCH
+        else:
+            return Verdict.NO_MATCH
         
 
 
@@ -75,7 +82,7 @@ class ChromaticIdentifier(Identifier):
         shoulder_center = Point((shoulder_l.x + shoulder_r.x)/2, (shoulder_l.y + shoulder_r.y)/2 + 0.05, (shoulder_l.visibility + shoulder_r.visibility)/2)
 
         distance = self._calculate_distance(shoulder_l, shoulder_r)
-        pixels = int(round(distance*self.__portion))
+        pixels = int(round(distance*self._portion))
 
         half = pixels // 2
         x = int(shoulder_center.x * config.width)
