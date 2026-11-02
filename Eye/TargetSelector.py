@@ -1,53 +1,77 @@
 import config
 from Point import Point
 import math
+from PoseDistance import PoseDistance
+from Identifier.Identifier import Identifier
+from Identifier.Verdict import Verdict
 
-class TargetSelector():
+class TargetSelector:
     """Class designed to select the tracking target"""
 
-    def __init__(self):
+    def __init__(self, identifier: Identifier):
         """Class constructor"""
         self.__center = Point(0.5, 0.5, 0)
+        self.__identifier = identifier
+    
+    def enroll(self, samples):
+        enrollement = []
+        for poses, frame in samples:
+            min_distance = math.inf
+            min_pose = []
+            for pose in poses:
+                distance_from_center = self._pose_distance_from_center(pose)
+                if distance_from_center < min_distance:
+                    min_distance = distance_from_center
+                    min_pose = pose
+            
+            enrollement.append((min_pose, frame))
+        
+        self.__identifier.enroll(enrollement)
+            
 
-    def select(self, poses):
+    def select(self, poses, frame):
         """
         Used to parse the given poses and select the subject of tracking.
-        The target will be the pose that is closest to the center of the frame.
+        The pose to be tracked will be the one whose similarity score exceeds the given threshold.
+        The similarity score is calculated by the identifier.
+        If more poses score above the threshold, the one to track will be the one closest to the center of the frame.
         
         Args:
-            poses: List of Lists containg for each pose the relative landmarks
+            poses: List of List containing for each pose the corresponding landmarks
 
         Returns:
-            target: List containg the targets pose landmarks.
+            pose: List of landmarks representing the selected pose.
         
         """
-        
-        closest = None
-        min_distance = math.inf
-        for target in poses:
-            shoulder_l = target[11]
-            shoulder_r = target[12]
-
-            pose_center = Point((shoulder_r.x + shoulder_l.x)/2, (shoulder_r.y + shoulder_l.y)/2, 0)
-            distance_from_center = self._calculate_distance(pose_center, self.__center)
-
-            if distance_from_center < min_distance:
-               closest = target
-               min_distance = distance_from_center
-
-        return closest 
-
-    def _calculate_distance(self, point_a, point_b):
-            """
-            Used to calculate the distance between two given Point.
-            The calculated distance is in pixels so it depends on the camera resolution (config.width, config.height.)
-    
-            Args:
-                point_a: Point, the first point.
-                point_b: Point, the second point.
+        filtered_poses = []
+        for pose in poses:
             
-            Returns:
-                distance in pixels between point_a and point_b.
-            """
-    
-            return math.dist([point_a.x * config.width, point_a.y * config.height], [point_b.x * config.width, point_b.y * config.height])
+            distance_from_center = self._pose_distance_from_center(pose)
+            verdict = self.__identifier.verify((pose, frame))
+            
+            if verdict == Verdict.MATCH:
+                filtered_poses.append(PoseDistance(pose, distance_from_center))
+        
+        if not filtered_poses:
+            return None
+        else:
+            filtered_poses.sort()
+            return filtered_poses[0].pose
+        
+    def _pose_distance_from_center(self, pose):
+        """
+        Used to calculate the distance between the pose and the center of the frame.
+        The calculated distance is in pixels so it depends on the camera resolution (config.width, config.height.)
+            
+        Args:
+            pose: List of Point, pose keypoints.
+        Returns:
+            distance in pixels between pose and the center of the frame.
+        """
+        
+        shoulder_l = pose[11]
+        shoulder_r = pose[12]
+        
+        pose_center = Point((shoulder_r.x + shoulder_l.x)/2, (shoulder_r.y + shoulder_l.y)/2, 0)
+        
+        return math.dist([pose_center.x * config.width, pose_center.y * config.height], [self.__center.x * config.width, self.__center.y * config.height])
