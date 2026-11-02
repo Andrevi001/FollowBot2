@@ -45,18 +45,10 @@ class ChromaticIdentifier(Identifier):
             return Verdict.NOT_VERIFIABLE
         
         for identity, subject in zip(self.__id, subject_mean_color):
-            lesser = min(identity, subject)
-            greater = max(identity, subject)
-            ratio = 0
+            similarity = 1 - abs(identity - subject) / 255
             
-            if greater == 0:
-                ratio = 1
-            else:
-                ratio= lesser/greater
-            
-            if ratio < self._threshold:
+            if similarity < self._threshold:
                 return Verdict.NO_MATCH
-           
 
         return Verdict.MATCH        
 
