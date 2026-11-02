@@ -44,23 +44,21 @@ class ChromaticIdentifier(Identifier):
         if subject_mean_color is None:
             return Verdict.NOT_VERIFIABLE
         
-        comparison = []
         for identity, subject in zip(self.__id, subject_mean_color):
             lesser = min(identity, subject)
             greater = max(identity, subject)
+            ratio = 0
             
             if greater == 0:
-                comparison.append(1-lesser/255)
+                ratio = 1
             else:
-                comparison.append(lesser/greater)
+                ratio= lesser/greater
             
-        comparison_result =  np.mean(comparison)
-        
-        if comparison_result >= self._threshold:
-            return Verdict.MATCH
-        else:
-            return Verdict.NO_MATCH
-        
+            if ratio < self._threshold:
+                return Verdict.NO_MATCH
+           
+
+        return Verdict.MATCH        
 
 
     def _calculate_mean_color(self, pose, frame):
