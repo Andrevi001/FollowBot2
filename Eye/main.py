@@ -10,7 +10,7 @@ from Identifier.ChromaticIdentifier import ChromaticIdentifier
 cam = Camera()
 target_detector = TargetDetector() 
 shoulders_log = DistanceLogger("./Distance/K_Shoulders.txt")
-chromatic_id = ChromaticIdentifier(0.4, 0.7)
+chromatic_id = ChromaticIdentifier(0.4, 0.78, 0.02)
 target_selector = TargetSelector(chromatic_id)
 target_tracker = TargetTracker(shoulders_log.K_distance())
 log_body_measurements = False

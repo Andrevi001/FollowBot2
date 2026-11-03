@@ -6,22 +6,20 @@ from Identifier.Verdict import Verdict
 import config
 import cv2
 
-side = 100
-
-
 
 class ChromaticIdentifier(Identifier):
-    def __init__(self, portion, threshold):
+    def __init__(self, portion, threshold, adaption_rate : float):
         """
         Class constructor
 
-        Args:
-            pixels: value between 0 and 1 that indicates the portion of the frame to be used as a feature extraction region.
-                    the region is a square that covers part of the torso area.
-        
+            Args:
+                portion, threshold: same as Identifier.
+                adaption_rate : rate at which the enrolled value adapts to a match.
         """
+
         super().__init__(portion, threshold)
         self.__id = None
+        self.__adaption_rate = adaption_rate
     
     def enroll(self, samples):
         mean_colors = []
@@ -50,7 +48,12 @@ class ChromaticIdentifier(Identifier):
             if similarity < self._threshold:
                 return Verdict.NO_MATCH
 
-        return Verdict.MATCH        
+        self._adapt(subject_mean_color)
+
+        return Verdict.MATCH
+
+    def _adapt(self, observerd_value) :
+        self.__id = self.__id * (1 - self.__adaption_rate) + observerd_value * self.__adaption_rate
 
 
     def _calculate_mean_color(self, pose, frame):
@@ -72,7 +75,7 @@ class ChromaticIdentifier(Identifier):
         shoulder_center = Point((shoulder_l.x + shoulder_r.x)/2, (shoulder_l.y + shoulder_r.y)/2 + 0.05, (shoulder_l.visibility + shoulder_r.visibility)/2)
 
         distance = self._calculate_distance(shoulder_l, shoulder_r)
-        pixels = int(round(distance*self._portion))
+        pixels = max(30, int(round(distance*self._portion)))
 
         half = pixels // 2
         x = int(shoulder_center.x * config.width)
