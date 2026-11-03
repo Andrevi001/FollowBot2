@@ -1,7 +1,7 @@
 import config
 from Point import Point
 import math
-from PoseDistance import PoseDistance
+from TargetSelection.PoseDistance import PoseDistance
 from Identifier.Identifier import Identifier
 from Identifier.Verdict import Verdict
 

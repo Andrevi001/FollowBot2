@@ -1,16 +1,17 @@
+import config
 import cv2
 import serial
 from Camera import Camera
-from TargetTracker import TargetTracker
-from TargetDetector import TargetDetector
+from TargetTracking.TargetTracker import TargetTracker
+from TargetDetection.TargetDetector import TargetDetector
 from Distance.DistanceLogger import DistanceLogger
-from TargetSelector import TargetSelector
+from TargetSelection.TargetSelector import TargetSelector
 from Identifier.ChromaticIdentifier import ChromaticIdentifier
 
 cam = Camera()
 target_detector = TargetDetector() 
-shoulders_log = DistanceLogger("./Distance/K_Shoulders.txt")
-chromatic_id = ChromaticIdentifier(0.4, 0.78, 0.02)
+shoulders_log = DistanceLogger(config.distance_log_path)
+chromatic_id = ChromaticIdentifier(config.chromatic_id_portion, config.chromatic_id_threshold, config.chromatic_id_adaption_rate)
 target_selector = TargetSelector(chromatic_id)
 target_tracker = TargetTracker(shoulders_log.K_distance())
 log_body_measurements = False
@@ -75,15 +76,15 @@ def main_loop():
                         shoulders_log.add_distance(shoulder_r, shoulder_l)
         
                     if send_frame and not log_body_measurements:
-                        serial0.write(bytes([70, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
+                        serial0.write(bytes([config.header_found, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
                         send_frame = False
                     elif send_frame and log_body_measurements:
-                        serial0.write(bytes([76, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
+                        serial0.write(bytes([config.header_logging, pan & 0xFF, tilt & 0xFF, distance & 0xFF]))
                         send_frame = False
                     else:
                         send_frame = True
         else:
-            serial0.write(bytes([78, 0, 0, 0]))
+            serial0.write(bytes([config.header_not_found, 0, 0, 0]))
                 
                 
         if old_frame is not None and show_frame:
@@ -94,7 +95,7 @@ def main_loop():
 
 try :
     cam.begin()
-    serial0 = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
+    serial0 = serial.Serial(config.serial_path, config.serial_baudrate, timeout=1)
     print("Initialized")
     imprint(160)
     main_loop()
@@ -106,7 +107,7 @@ finally:
     cam.close()
     target_detector.close()
     if serial0 is not None and serial0.is_open:
-        serial0.write(bytes([78, 0, 0, 0]))
+        serial0.write(bytes([config.header_not_found, 0, 0, 0]))
         serial0.close()
     shoulders_log.writeToFile()
     cv2.destroyAllWindows()

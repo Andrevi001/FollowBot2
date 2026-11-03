@@ -1,6 +1,6 @@
 import config
 from Point import Point
-from PID import PID
+from TargetTracking.PID import PID
 import math
 
 class TargetTracker():
