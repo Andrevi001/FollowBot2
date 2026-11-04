@@ -32,6 +32,10 @@ class ChromaticIdentifier(Identifier):
         self.__id = np.mean(mean_colors, axis=0)
 
     def verify(self, sample):
+        """
+        Same as Identifier, but on Verdict.MATCH the onrolled value is adapted 
+        to the matched value according to self.__adaption_rate
+        """
         
         if self.__id is None:
             return Verdict.NOT_ENROLLED
