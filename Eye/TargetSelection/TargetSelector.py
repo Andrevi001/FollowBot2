@@ -65,7 +65,7 @@ class TargetSelector:
             verdict = self.__identifier1.verify((pose, frame))
             
             if verdict == Verdict.MATCH:
-                filtered_poses.append(PoseDistance(pose, distance_from_center))
+                filtered_poses.append(PoseDistance(pose, distance_from_center))     
         
         second_filter = []
         for pose_and_distance in filtered_poses:
@@ -78,6 +78,7 @@ class TargetSelector:
             return None
         elif second_filter:
             second_filter.sort()
+            print("here")
             return second_filter[0].pose
         elif filtered_poses:
             filtered_poses.sort()

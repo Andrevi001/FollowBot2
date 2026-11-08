@@ -5,14 +5,16 @@ from Camera import Camera
 from TargetTracking.TargetTracker import TargetTracker
 from TargetDetection.TargetDetector import TargetDetector
 from Distance.DistanceLogger import DistanceLogger
-from TargetSelection.TargetSelector import TargetSelector
 from Identifier.ChromaticIdentifier import ChromaticIdentifier
+from Identifier.FaceIdentifierLBPH import FaceIdentifierLBPH
+from TargetSelection.TargetSelector import TargetSelector
 
 cam = Camera()
 target_detector = TargetDetector() 
 shoulders_log = DistanceLogger(config.distance_log_path)
-chromatic_id = ChromaticIdentifier(config.chromatic_id_portion, config.chromatic_id_threshold, config.chromatic_id_adaption_rate)
-target_selector = TargetSelector(chromatic_id)
+chromatic_id = ChromaticIdentifier(config.chromatic_id_threshold, config.chromatic_id_portion, config.chromatic_id_adaption_rate)
+face_id = FaceIdentifierLBPH(config.face_id_threshold, config.face_id_size)
+target_selector = TargetSelector(chromatic_id, face_id)
 target_tracker = TargetTracker(shoulders_log.K_distance())
 log_body_measurements = False
 show_frame = False
@@ -97,7 +99,7 @@ try :
     cam.begin()
     serial0 = serial.Serial(config.serial_path, config.serial_baudrate, timeout=1)
     print("Initialized")
-    imprint(160)
+    imprint(config.imprinting_frame_num)
     main_loop()
 
 except KeyboardInterrupt:

@@ -8,16 +8,21 @@ import cv2
 
 
 class ChromaticIdentifier(Identifier):
-    def __init__(self, portion, threshold, adaption_rate : float):
+    def __init__(self, threshold, portion, adaption_rate : float):
         """
         Class constructor
 
             Args:
-                portion, threshold: same as Identifier.
+                threshold: same as Identifier.
+                portion: float in (0, 1], size of the feature extraction region,
+                         relative to a reference length (e.g. shoulder width).
+                         The region and the keypoint it is centered on are
+                         defined by each subclass.
                 adaption_rate : rate at which the enrolled value adapts to a match.
         """
 
-        super().__init__(portion, threshold)
+        super().__init__(threshold)
+        self.__portion = portion
         self.__id = None
         self.__adaption_rate = adaption_rate
     
@@ -79,19 +84,7 @@ class ChromaticIdentifier(Identifier):
         shoulder_center = Point((shoulder_l.x + shoulder_r.x)/2, (shoulder_l.y + shoulder_r.y)/2 + 0.05, (shoulder_l.visibility + shoulder_r.visibility)/2)
 
         distance = self._calculate_distance(shoulder_l, shoulder_r)
-        pixels = max(30, int(round(distance*self._portion)))
-
-        half = pixels // 2
-        x = int(shoulder_center.x * config.width)
-        y = int(shoulder_center.y * config.height)
-        top_left = (x - half, y - half)
-        bottom_right = (x + half, y + half)
-        if frame is not None:
-            img = frame.numpy_view().copy()
-            cv2.rectangle(img, top_left, bottom_right, (0, 255, 0), 2)
-            cv2.imshow("camera", img)
-            cv2.waitKey(1)
-
+        pixels = max(30, int(round(distance*self.__portion)))
 
         cropped_frame = self._crop_around(frame, shoulder_center, pixels)
         
