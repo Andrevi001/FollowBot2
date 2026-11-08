@@ -4,10 +4,17 @@ height = 480
 
 distance_log_path = "./Distance/K_Shoulders.txt"
 
+#Imprinting
+imprinting_frame_num = 80
+
 #ChromaticIdentifier init values
 chromatic_id_portion = 0.4
 chromatic_id_threshold = 0.78
 chromatic_id_adaption_rate = 0.02
+
+#FaceIdentifierLBPH
+face_id_threshold = 0.7
+face_id_size = 100
 
 #Serial config
 serial_path = '/dev/ttyAMA0'

@@ -90,11 +90,11 @@ void react() {
     }
     
     if (state.state() == TOWER) {
-        alignCameraAndBody(150,20);
+        //alignCameraAndBody(150,20);
     }
     
     if (approach || recede) {
-        FwBw();
+        //FwBw();
         state.rover();
     } else if (state.state() == ROVER) {
         Stop();

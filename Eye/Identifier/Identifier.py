@@ -6,19 +6,14 @@ import mediapipe as mp
 class Identifier(ABC):
     """Abstract class for identification algorithms."""
     
-    def __init__(self, portion : float, threshold : float):
+    def __init__(self, threshold : float):
         """
-        Class constructor
+        Abstract class constructor
         
         Args:
-            portion: float in (0, 1], size of the feature extraction region,
-                 relative to a reference length (e.g. shoulder width).
-                 The region and the keypoint it is centered on are
-                 defined by each subclass.
-            threshold: float, similarity score aboce which a verification is considered successful.
+            threshold: float, similarity score above which a verification is considered successful.
         """
         
-        self._portion = portion
         self._threshold = threshold
         
     @abstractmethod

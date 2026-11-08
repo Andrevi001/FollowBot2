@@ -1,25 +1,27 @@
-from Identifier.Identifier import Identifier
+from Identifier.ImageBasedIdentifier import ImageBasedIdentifier
 from Point import Point
 import numpy as np
-import math
 from Identifier.Verdict import Verdict
-import config
-import cv2
 
 
-class ChromaticIdentifier(Identifier):
-    def __init__(self, portion, threshold, adaption_rate : float):
+class ChromaticIdentifier(ImageBasedIdentifier):
+    def __init__(self, threshold, portion, adaptation_rate : float):
         """
         Class constructor
 
             Args:
-                portion, threshold: same as Identifier.
-                adaption_rate : rate at which the enrolled value adapts to a match.
+                threshold: same as Identifier.
+                portion: float in (0, 1], size of the feature extraction region,
+                         relative to a reference length (e.g. shoulder width).
+                         The region and the keypoint it is centered on are
+                         defined by each subclass.
+                adaptation_rate : rate at which the enrolled value adapts to a match.
         """
 
-        super().__init__(portion, threshold)
+        super().__init__(threshold)
+        self.__portion = portion
         self.__id = None
-        self.__adaption_rate = adaption_rate
+        self.__adaptation_rate = adaptation_rate
     
     def enroll(self, samples):
         mean_colors = []
@@ -32,6 +34,10 @@ class ChromaticIdentifier(Identifier):
         self.__id = np.mean(mean_colors, axis=0)
 
     def verify(self, sample):
+        """
+        Same as Identifier, but on Verdict.MATCH the onrolled value is adapted 
+        to the matched value according to self.__adaptation_rate
+        """
         
         if self.__id is None:
             return Verdict.NOT_ENROLLED
@@ -53,7 +59,7 @@ class ChromaticIdentifier(Identifier):
         return Verdict.MATCH
 
     def _adapt(self, observerd_value) :
-        self.__id = self.__id * (1 - self.__adaption_rate) + observerd_value * self.__adaption_rate
+        self.__id = self.__id * (1 - self.__adaptation_rate) + observerd_value * self.__adaptation_rate
 
 
     def _calculate_mean_color(self, pose, frame):
@@ -75,19 +81,7 @@ class ChromaticIdentifier(Identifier):
         shoulder_center = Point((shoulder_l.x + shoulder_r.x)/2, (shoulder_l.y + shoulder_r.y)/2 + 0.05, (shoulder_l.visibility + shoulder_r.visibility)/2)
 
         distance = self._calculate_distance(shoulder_l, shoulder_r)
-        pixels = max(30, int(round(distance*self._portion)))
-
-        half = pixels // 2
-        x = int(shoulder_center.x * config.width)
-        y = int(shoulder_center.y * config.height)
-        top_left = (x - half, y - half)
-        bottom_right = (x + half, y + half)
-        if frame is not None:
-            img = frame.numpy_view().copy()
-            cv2.rectangle(img, top_left, bottom_right, (0, 255, 0), 2)
-            cv2.imshow("camera", img)
-            cv2.waitKey(1)
-
+        pixels = max(30, int(round(distance*self.__portion)))
 
         cropped_frame = self._crop_around(frame, shoulder_center, pixels)
         
@@ -95,43 +89,3 @@ class ChromaticIdentifier(Identifier):
             return None
         
         return  np.mean(cropped_frame, axis=(0, 1))
-        
-
-    def _crop_around(self, frame, center: Point, length: int):
-        """
-        Crops a square with the specified side length, centered around the given point in the frame.
-        
-        Args:
-            frame: numpy.array to be cropped
-            center: Point center of the cropping, normalized value relative to frame.
-            length: length of the square's side, measured in pixels.
-        Returns:
-            numpy.array containing the cropped area
-        """
-
-        img = frame.numpy_view()
-        h, w = img.shape[:2]
-
-        x = round(center.x * w) - length // 2
-        y = round(center.y * h) - length // 2
-        x1, y1 = x + length, y + length
-
-        if x < 0 or y < 0 or x1 > w or y1 > h:
-            return None
-
-        return img[y:y1, x:x1]
-    
-    def _calculate_distance(self, point_a, point_b):
-        """
-        Used to calculate the distance between two given Point.
-        The calculated distance is in pixels so it depends on the camera resolution (config.width, config.height.)
-    
-        Args:
-            point_a: Point, the first point.
-            point_b: Point, the second point.
-        
-        Returns:
-            distance in pixels between point_a and point_b.
-        """
-    
-        return math.dist([point_a.x * config.width, point_a.y * config.height], [point_b.x * config.width, point_b.y * config.height])
