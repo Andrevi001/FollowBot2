@@ -5,16 +5,6 @@ import mediapipe as mp
 
 class Identifier(ABC):
     """Abstract class for identification algorithms."""
-    
-    def __init__(self, threshold : float):
-        """
-        Abstract class constructor
-        
-        Args:
-            threshold: float, similarity score above which a verification is considered successful.
-        """
-        
-        self._threshold = threshold
         
     @abstractmethod
     def enroll(self, samples: list[(list[Point], list[mp.Image])]) -> None:

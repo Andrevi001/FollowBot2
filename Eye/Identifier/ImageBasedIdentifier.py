@@ -4,16 +4,6 @@ import math
 import Point
 
 class ImageBasedIdentifier(Identifier):
-    
-    def __init__(self, threshold):
-        """
-        Class constructor
-
-            Args:
-                threshold: same as Identifier.
-        """
-        
-        super().__init__(threshold)
 
     def _crop_around(self, frame, center: Point, length: int):
         """
