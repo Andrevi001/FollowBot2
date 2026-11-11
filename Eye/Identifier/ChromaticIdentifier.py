@@ -10,7 +10,7 @@ class ChromaticIdentifier(ImageBasedIdentifier):
         Class constructor
 
             Args:
-                threshold: same as Identifier.
+                threshold: value in (0,1], indicating a similarity score above which a verification is considered successful.
                 portion: float in (0, 1], size of the feature extraction region,
                          relative to a reference length (e.g. shoulder width).
                          The region and the keypoint it is centered on are
@@ -18,7 +18,7 @@ class ChromaticIdentifier(ImageBasedIdentifier):
                 adaptation_rate : rate at which the enrolled value adapts to a match.
         """
 
-        super().__init__(threshold)
+        self.__threshold = threshold
         self.__portion = portion
         self.__id = None
         self.__adaptation_rate = adaptation_rate
@@ -51,7 +51,7 @@ class ChromaticIdentifier(ImageBasedIdentifier):
         for identity, subject in zip(self.__id, subject_mean_color):
             similarity = 1 - abs(identity - subject) / 255
             
-            if similarity < self._threshold:
+            if similarity < self.__threshold:
                 return Verdict.NO_MATCH
 
         self._adapt(subject_mean_color)

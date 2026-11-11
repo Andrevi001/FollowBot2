@@ -13,8 +13,11 @@ chromatic_id_threshold = 0.78
 chromatic_id_adaption_rate = 0.02
 
 #FaceIdentifierLBPH
-face_id_threshold = 0.7
-face_id_size = 100
+face_id_LBPH_threshold = 0.8
+face_id_LBPH_size = 100
+
+#FaceIdentifierMACE
+face_id_MACE_size = 100
 
 #Serial config
 serial_path = '/dev/ttyAMA0'

@@ -1,24 +1,22 @@
-from Identifier.ImageBasedIdentifier import ImageBasedIdentifier
+from Identifier.FaceIdentifier import FaceIdentifier
 import cv2
 import numpy as np
 from Identifier.Verdict import Verdict
-import config
 
-class FaceIdentifierLBPH(ImageBasedIdentifier):
-    def __init__(self, threshold, id_size):
+
+class FaceIdentifierLBPH(FaceIdentifier):
+    def __init__(self, id_size, threshold):
         """
         Class constructor
 
             Args:
-                portion, threshold: same as Identifier.
-                id_size : length of the side of the square identification region.
-                          The length is expressed in pixels.
+                threshold: value in (0,1], indicating a similarity score above which a verification is considered successful.
         """
 
-        super().__init__(threshold)
-        self.__id_size = id_size
+        super().__init__(id_size)
+        self.__threshold = threshold
         self.__enrolled = False
-        self.__recognizer = cv2.face.LBPHFaceRecognizer_create(
+        self.__identifier = cv2.face.LBPHFaceRecognizer_create(
             radius=1,
             neighbors=8,
             grid_x=4,
@@ -38,7 +36,7 @@ class FaceIdentifierLBPH(ImageBasedIdentifier):
         
         labels = np.zeros(len(gray_frames), dtype=np.int32)
         
-        self.__recognizer.train(gray_frames, labels)
+        self.__identifier.train(gray_frames, labels)
         
         self.__enrolled = True
     
@@ -51,63 +49,12 @@ class FaceIdentifierLBPH(ImageBasedIdentifier):
         if gray_and_resized is None:
             return Verdict.NOT_VERIFIABLE
         
-        label, distance = self.__recognizer.predict(gray_and_resized)
+        label, distance = self.__identifier.predict(gray_and_resized)
         
-        max_distance = 4 * self.__recognizer.getGridX() * self.__recognizer.getGridY()
+        max_distance = 4 * self.__identifier.getGridX() * self.__identifier.getGridY()
         similarity = 1 - distance/max_distance
-        print(similarity)
         
-        if similarity >= self._threshold:
+        if similarity >= self.__threshold:
             return Verdict.MATCH
         else:
-            return Verdict.NO_MATCH
-        
-        
-    def _preprocessing(self, sample):
-        """
-        Prepares the given for identification
-        
-            Args:
-                sample: containing pose and corresponing frame
-            
-            Returns:
-                square, grayscale region of self.__id_size dimensions 
-        """
-        
-        pose, frame = sample
-        
-        nose = pose[0]
-        ear_l = pose[7]
-        ear_r = pose[8]
-            
-        padding = 30
-        ear_to_ear_distance = self._calculate_distance(ear_l, ear_r)
-            
-        cropped_frame = self._crop_around(frame, nose, round(padding + ear_to_ear_distance))
-
-        if cropped_frame is None:
-            return None
-
-        half = round(padding + ear_to_ear_distance) // 2
-        x = int(nose.x * config.width)
-        y = int(nose.y * config.height)
-        top_left = (x - half, y - half)
-        bottom_right = (x + half, y + half)
-        if frame is not None:
-            img = frame.numpy_view().copy()
-            cv2.rectangle(img, top_left, bottom_right, (0, 255, 0), 2)
-            cv2.imshow("camera", img)
-            cv2.waitKey(1)
-            
-        gray_frame = cv2.cvtColor(cropped_frame, cv2.COLOR_BGR2GRAY)        
-        height, width = gray_frame.shape
-
-        gray_and_resized = gray_frame
-
-        if height >= self.__id_size and width >= self.__id_size:
-            gray_and_resized = cv2.resize(gray_frame, (self.__id_size, self.__id_size), interpolation=cv2.INTER_AREA)
-        else:
-            gray_and_resized = cv2.resize(gray_frame, (self.__id_size, self.__id_size), interpolation=cv2.INTER_LINEAR)
-            
-        return gray_and_resized 
-    
+            return Verdict.NO_MATCH    
