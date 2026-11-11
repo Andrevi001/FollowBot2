@@ -6,14 +6,15 @@ from TargetTracking.TargetTracker import TargetTracker
 from TargetDetection.TargetDetector import TargetDetector
 from Distance.DistanceLogger import DistanceLogger
 from Identifier.ChromaticIdentifier import ChromaticIdentifier
-from Identifier.FaceIdentifierLBPH import FaceIdentifierLBPH
+#from Identifier.FaceIdentifierLBPH import FaceIdentifierLBPH
+from Identifier.FaceIdentifierMACE import FaceIdentifierMACE
 from TargetSelection.TargetSelector import TargetSelector
 
 cam = Camera()
 target_detector = TargetDetector() 
 shoulders_log = DistanceLogger(config.distance_log_path)
 chromatic_id = ChromaticIdentifier(config.chromatic_id_threshold, config.chromatic_id_portion, config.chromatic_id_adaption_rate)
-face_id = FaceIdentifierLBPH(config.face_id_threshold, config.face_id_size)
+face_id = FaceIdentifierMACE(config.face_id_MACE_size)
 target_selector = TargetSelector(chromatic_id, face_id)
 target_tracker = TargetTracker(shoulders_log.K_distance())
 log_body_measurements = False

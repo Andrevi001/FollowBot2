@@ -5,7 +5,7 @@ from Identifier.Verdict import Verdict
 
 
 class FaceIdentifierLBPH(FaceIdentifier):
-    def __init__(self, threshold, id_size):
+    def __init__(self, id_size, threshold):
         """
         Class constructor
 
@@ -53,7 +53,6 @@ class FaceIdentifierLBPH(FaceIdentifier):
         
         max_distance = 4 * self.__identifier.getGridX() * self.__identifier.getGridY()
         similarity = 1 - distance/max_distance
-        print(similarity)
         
         if similarity >= self.__threshold:
             return Verdict.MATCH
